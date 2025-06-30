@@ -16,5 +16,29 @@
     "name": "FEMA NIMS ICS Forms",
     "description": "Official Incident Command System forms in PDF format.",
     "url": "https://www.fema.gov/emergency-managers/nims/components/incident-command-system"
+  },
+  {
+    "id": "sarcop_resources",
+    "name": "SARCOP Reference Materials",
+    "description": "Documents and guides hosted on the SARCOP site for search and rescue operations.",
+    "url": "https://sarcop.org"
+  },
+  {
+    "id": "responsesystem_org",
+    "name": "ResponseSystem.org Library",
+    "description": "Reference library and SharePoint for incident response coordination.",
+    "url": "https://responsesystem.org"
+  },
+  {
+    "id": "nifog",
+    "name": "National Interoperability Field Operations Guide (NIFOG)",
+    "description": "Official DHS guide for communications interoperability.",
+    "url": "https://www.dhs.gov/safecom/nifog"
+  },
+  {
+    "id": "caloes_ifog",
+    "name": "CAL OES iFOG / FIRESCOPE",
+    "description": "California version of the Interoperability Field Operations Guide.",
+    "url": "https://firescope.org/ifog"
   }
 ]

@@ -33,3 +33,26 @@ def test_get_form():
 def test_get_form_not_found():
     response = client.get('/ics_forms/unknown')
     assert response.status_code == 404
+
+
+def test_list_datasets():
+    response = client.get('/datasets')
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == len(server.OPEN_DATASETS)
+    assert data[0]['id'] == server.OPEN_DATASETS[0].id
+
+
+def test_get_dataset():
+    dataset = server.OPEN_DATASETS[0]
+    response = client.get(f'/datasets/{dataset.id}')
+    assert response.status_code == 200
+    data = response.json()
+    assert data['id'] == dataset.id
+    assert data['name'] == dataset.name
+
+
+def test_get_dataset_not_found():
+    response = client.get('/datasets/unknown')
+    assert response.status_code == 404
