@@ -1,0 +1,20 @@
+[
+  {
+    "id": "openfema_disaster_declarations",
+    "name": "Disaster Declarations Summaries",
+    "description": "OpenFEMA dataset summarizing federally declared disasters.",
+    "url": "https://www.fema.gov/openfema-data-hub-page/disaster-declarations-summaries"
+  },
+  {
+    "id": "usgs_earthquake_catalog",
+    "name": "USGS Earthquake Catalog",
+    "description": "Open dataset of global earthquake events.",
+    "url": "https://earthquake.usgs.gov/fdsnws/event/1/"
+  },
+  {
+    "id": "ics_forms",
+    "name": "FEMA NIMS ICS Forms",
+    "description": "Official Incident Command System forms in PDF format.",
+    "url": "https://www.fema.gov/emergency-managers/nims/components/incident-command-system"
+  }
+]
