@@ -12,7 +12,7 @@ pull what they need without hunting around.
 
 ### Why use one?
 
-For firefighters, using an MCP server means you have a reliable source for
+For FEMA rescue workers, using an MCP server means you have a reliable source for
 ICS forms and other important documents. Instead of digging through folders
 or emailing files back and forth, you can point your apps to the server and
 get the latest versions instantly. This helps your team stay coordinated and
