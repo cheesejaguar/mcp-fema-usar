@@ -5,11 +5,12 @@ A FastMCP server providing FEMA Urban Search and Rescue (USAR) workers with acce
 ## Requirements
 * Python 3.12+
 * `fastmcp`
+* `fastapi`
 
 Install dependencies:
 
 ```bash
-pip install fastmcp
+pip install fastmcp fastapi
 ```
 
 ## Running

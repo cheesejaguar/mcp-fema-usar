@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install runtime dependencies
-RUN pip install --no-cache-dir fastmcp
+RUN pip install --no-cache-dir fastmcp fastapi
 
 # Copy application files
 COPY server.py ./
