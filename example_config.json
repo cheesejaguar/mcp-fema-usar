@@ -1,0 +1,9 @@
+{
+  "name": "FEMA USAR Example",
+  "mcp_server": "http://localhost:8000",
+  "endpoints": {
+    "forms": "/ics_forms",
+    "datasets": "/datasets"
+  },
+  "notes": "Update 'mcp_server' to match your deployed server location."
+}

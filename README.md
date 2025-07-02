@@ -45,3 +45,7 @@ The API will be available at `http://localhost:8000`. Endpoints include:
 - `/datasets/{id}` – get details about a specific dataset.
 
 The server is built with `FastMCP` and wraps a small FastAPI application.
+
+## Example configuration
+
+Tools like Cursor or ChatLM can connect to this MCP server with a small JSON configuration. Copy `example_config.json` and adjust the `mcp_server` value if the server is hosted elsewhere.
