@@ -1,14 +1,15 @@
 from fastapi import FastAPI, HTTPException
-from fastmcp import FastMCP
 from pydantic import BaseModel
 import json
 from pathlib import Path
+from fastapi.responses import FileResponse
 
 
 class ICSForm(BaseModel):
     id: str
     name: str
     description: str
+    filename: str
 
 
 class OpenDataset(BaseModel):
@@ -44,6 +45,19 @@ def get_form(form_id: str) -> ICSForm:
     raise HTTPException(status_code=404, detail="ICS form not found")
 
 
+@app.get("/ics_forms/{form_id}/content")
+def get_form_content(form_id: str) -> FileResponse:
+    """Retrieve the actual ICS form file."""
+    for form in ICS_FORMS:
+        if form.id.lower() == form_id.lower():
+            file_path = Path(__file__).parent / "resources" / "forms" / form.filename
+            if file_path.exists():
+                return FileResponse(file_path)
+            else:
+                raise HTTPException(status_code=404, detail="Form file not found")
+    raise HTTPException(status_code=404, detail="ICS form not found")
+
+
 @app.get("/datasets", response_model=list[OpenDataset])
 def list_datasets() -> list[OpenDataset]:
     """List available open datasets."""
@@ -59,10 +73,7 @@ def get_dataset(dataset_id: str) -> OpenDataset:
     raise HTTPException(status_code=404, detail="Dataset not found")
 
 
-server = FastMCP.from_fastapi(app, name="fema-usar")
-
 if __name__ == "__main__":
     import uvicorn
 
-    # FastMCPOpenAPI implements the ASGI interface directly
-    uvicorn.run(server, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

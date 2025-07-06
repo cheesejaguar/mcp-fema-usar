@@ -35,6 +35,24 @@ def test_get_form_not_found():
     assert response.status_code == 404
 
 
+def test_get_form_content():
+    form = server.ICS_FORMS[0]
+    # Create a dummy file for testing
+    form_path = Path(__file__).parent.parent / "resources" / "forms"
+    form_path.mkdir(exist_ok=True)
+    (form_path / form.filename).touch()
+
+    response = client.get(f'/ics_forms/{form.id}/content')
+    assert response.status_code == 200
+    # Check if the file is returned
+    assert response.headers['content-disposition'] == f'attachment; filename="{form.filename}"'
+
+
+def test_get_form_content_not_found():
+    response = client.get('/ics_forms/unknown/content')
+    assert response.status_code == 404
+
+
 def test_list_datasets():
     response = client.get('/datasets')
     assert response.status_code == 200
@@ -46,7 +64,7 @@ def test_list_datasets():
 
 def test_get_dataset():
     dataset = server.OPEN_DATASETS[0]
-    response = client.get(f'/datasets/{dataset.id}')
+    response =.get(f'/datasets/{dataset.id}')
     assert response.status_code == 200
     data = response.json()
     assert data['id'] == dataset.id
