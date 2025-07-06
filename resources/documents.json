@@ -1,0 +1,26 @@
+[
+  {
+    "id": "nifog",
+    "name": "National Interoperability Field Operations Guide (NIFOG)",
+    "description": "Official DHS guide for communications interoperability.",
+    "filename": "NIFOG.pdf"
+  },
+  {
+    "id": "sarcop_resources",
+    "name": "SARCOP Reference Materials",
+    "description": "Documents and guides hosted on the SARCOP site for search and rescue operations.",
+    "filename": "SARCOP_Reference_Materials.pdf"
+  },
+  {
+    "id": "responsesystem_org",
+    "name": "ResponseSystem.org Library",
+    "description": "Reference library and SharePoint for incident response coordination.",
+    "filename": "ResponseSystem_org_Library.pdf"
+  },
+  {
+    "id": "caloes_ifog",
+    "name": "CAL OES iFOG / FIRESCOPE",
+    "description": "California version of the Interoperability Field Operations Guide.",
+    "filename": "CALOES_iFOG_FIRESCOPE.pdf"
+  }
+]

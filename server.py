@@ -19,6 +19,13 @@ class OpenDataset(BaseModel):
     url: str
 
 
+class Document(BaseModel):
+    id: str
+    name: str
+    description: str
+    filename: str
+
+
 app = FastAPI(title="FEMA USAR MCP Server")
 
 DATA_PATH = Path(__file__).parent / "resources" / "ics_forms.json"
@@ -28,6 +35,13 @@ with DATA_PATH.open() as f:
 DATASET_PATH = Path(__file__).parent / "resources" / "open_datasets.json"
 with DATASET_PATH.open() as f:
     OPEN_DATASETS = [OpenDataset(**item) for item in json.load(f)]
+
+DOCUMENTS_PATH = Path(__file__).parent / "resources" / "documents.json"
+if DOCUMENTS_PATH.exists():
+    with DOCUMENTS_PATH.open() as f:
+        DOCUMENTS = [Document(**item) for item in json.load(f)]
+else:
+    DOCUMENTS = []
 
 
 @app.get("/ics_forms", response_model=list[ICSForm])
@@ -52,7 +66,7 @@ def get_form_content(form_id: str) -> FileResponse:
         if form.id.lower() == form_id.lower():
             file_path = Path(__file__).parent / "resources" / "forms" / form.filename
             if file_path.exists():
-                return FileResponse(file_path)
+                return FileResponse(file_path, headers={"Content-Disposition": f"attachment; filename={form.filename}"})
             else:
                 raise HTTPException(status_code=404, detail="Form file not found")
     raise HTTPException(status_code=404, detail="ICS form not found")
@@ -71,6 +85,34 @@ def get_dataset(dataset_id: str) -> OpenDataset:
         if dataset.id.lower() == dataset_id.lower():
             return dataset
     raise HTTPException(status_code=404, detail="Dataset not found")
+
+
+@app.get("/documents", response_model=list[Document])
+def list_documents() -> list[Document]:
+    """List available documents."""
+    return DOCUMENTS
+
+
+@app.get("/documents/{document_id}", response_model=Document)
+def get_document(document_id: str) -> Document:
+    """Retrieve a specific document by id."""
+    for doc in DOCUMENTS:
+        if doc.id.lower() == document_id.lower():
+            return doc
+    raise HTTPException(status_code=404, detail="Document not found")
+
+
+@app.get("/documents/{document_id}/content")
+def get_document_content(document_id: str) -> FileResponse:
+    """Retrieve the actual document file."""
+    for doc in DOCUMENTS:
+        if doc.id.lower() == document_id.lower():
+            file_path = Path(__file__).parent / "resources" / "documents" / doc.filename
+            if file_path.exists():
+                return FileResponse(file_path, headers={"Content-Disposition": f"attachment; filename={doc.filename}"})
+            else:
+                raise HTTPException(status_code=404, detail="Document file not found")
+    raise HTTPException(status_code=404, detail="Document not found")
 
 
 if __name__ == "__main__":
