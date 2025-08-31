@@ -1572,11 +1572,14 @@ def format_medications_for_ics(medications: list[dict[str, Any]]) -> str:
 
     med_strings = []
     for med in medications[:3]:  # Limit to 3 medications for space
-        med_str = med.get("name", "Unknown")
-        if med.get("dose"):
-            med_str += f" {med['dose']}"
-        if med.get("route"):
-            med_str += f" {med['route']}"
+        if isinstance(med, str):
+            med_str = med
+        else:
+            med_str = med.get("name", "Unknown")
+            if med.get("dose"):
+                med_str += f" {med['dose']}"
+            if med.get("route"):
+                med_str += f" {med['route']}"
         med_strings.append(med_str)
 
     result = "; ".join(med_strings)

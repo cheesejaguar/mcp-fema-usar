@@ -16,6 +16,7 @@ RESCUE_OPERATION_PARAMETERS = {
     "mechanical": {"time": 2.0, "personnel": 6, "equipment": 6},
     "technical": {"time": 3.0, "personnel": 8, "equipment": 10},
     "complex": {"time": 5.0, "personnel": 12, "equipment": 15},
+    "vertical_lift": {"time": 2.5, "personnel": 8, "equipment": 8},
 }
 
 # Search pattern optimization parameters

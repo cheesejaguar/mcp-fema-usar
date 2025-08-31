@@ -398,6 +398,9 @@ def structural_assessment(
                 ],
             }
 
+        # Initialize load analysis
+        load_analysis = None
+        
         # Detailed assessment calculations
         if assessment_type in ["detailed", "ongoing"] and include_load_calculations:
             load_analysis = _calculate_structural_load_capacity(
@@ -496,7 +499,7 @@ def structural_assessment(
                 "heavy_equipment_restrictions": damage_level in ["moderate", "severe"],
                 "load_restrictions_percent": (
                     100 - load_analysis["recommended_load_limit_percent"]
-                    if include_load_calculations
+                    if include_load_calculations and load_analysis
                     else 25
                 ),
                 "personnel_limitations": (

@@ -82,7 +82,7 @@ jobs:
             pre-commit-${{ runner.os }}-
 
       - name: Run ruff linting
-        run: uv run ruff check . --output-format=github --statistics
+        run: uv run ruff check . --output-format=github
 
       - name: Run ruff format check
         run: uv run ruff format --check .
