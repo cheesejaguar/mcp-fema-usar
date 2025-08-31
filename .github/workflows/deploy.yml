@@ -53,6 +53,8 @@ jobs:
           check-name: 'CI Success'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          timeout: 600
+          running-workflow-name: 'CI/CD Pipeline'
 
       - name: Validate deployment readiness
         id: validate
