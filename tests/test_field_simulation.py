@@ -237,18 +237,18 @@ class TestBuildingCollapseSimulation:
             # Map accessibility and conditions to rescue tool values
             access_difficulty_mapping = {
                 "easy": "clear",
-                "moderate": "moderate", 
+                "moderate": "moderate",
                 "difficult": "complex",
                 "extremely_difficult": "extremely_difficult"
             }
-            
+
             condition_mapping = {
                 "stable_conscious": "stable_conscious",
-                "stable_unconscious": "unconscious", 
+                "stable_unconscious": "unconscious",
                 "critical_conscious": "critical",
                 "critical_unconscious": "critical"
             }
-            
+
             # Plan victim extraction
             extraction_result = victim_extraction_planner(
                 victim_id=victim["victim_id"],
