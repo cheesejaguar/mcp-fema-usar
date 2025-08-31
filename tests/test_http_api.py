@@ -106,11 +106,11 @@ class TestICSFormsAPI:
     @pytest.mark.unit
     def test_get_specific_ics_form(self, test_client: TestClient):
         """Test getting specific ICS form."""
-        response = test_client.get("/ics_forms/ics_201")
+        response = test_client.get("/ics_forms/201")
         assert response.status_code == 200
 
         data = response.json()
-        assert data["id"] == "ics_201"
+        assert data["id"] == "201"
         assert "name" in data
         assert "filename" in data
 
