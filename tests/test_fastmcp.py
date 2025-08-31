@@ -49,7 +49,9 @@ class TestFastMCPServerInitialization:
                     break
                 elif hasattr(tools_attr, "__iter__"):
                     try:
-                        _ = [tool.name for tool in tools_attr if hasattr(tool, "name")]  # noqa: F841
+                        _ = [
+                            tool.name for tool in tools_attr if hasattr(tool, "name")
+                        ]  # noqa: F841
                         _ = True  # tools_found  # noqa: F841
                         break
                     except (AttributeError, TypeError):
