@@ -1606,3 +1606,63 @@ def environmental_monitor(
             },
             indent=2,
         )
+
+
+def maintenance_scheduler(
+    equipment_type: str, maintenance_mode: str, task_force_id: str = "DEFAULT-TF"
+) -> str:
+    """Schedule equipment maintenance operations.
+
+    Args:
+        equipment_type: Type of equipment to maintain
+        maintenance_mode: Maintenance operation mode
+        task_force_id: Task force identifier
+
+    Returns:
+        JSON string with maintenance schedule
+    """
+    try:
+        maintenance_data = {
+            "tool": "Equipment Maintenance Scheduler",
+            "status": "success",
+            "task_force_id": task_force_id,
+            "equipment_type": equipment_type,
+            "maintenance_mode": maintenance_mode,
+            "timestamp": datetime.now().isoformat(),
+            "scheduled_maintenance": [
+                {
+                    "equipment_id": f"{equipment_type}_001",
+                    "maintenance_type": "preventive",
+                    "scheduled_date": (datetime.now() + timedelta(days=7)).isoformat(),
+                    "estimated_duration": "2 hours",
+                    "priority": "routine",
+                },
+                {
+                    "equipment_id": f"{equipment_type}_002",
+                    "maintenance_type": "inspection",
+                    "scheduled_date": (datetime.now() + timedelta(days=3)).isoformat(),
+                    "estimated_duration": "1 hour",
+                    "priority": "high",
+                },
+            ],
+            "maintenance_summary": {
+                "total_scheduled": 2,
+                "high_priority": 1,
+                "routine": 1,
+                "next_maintenance": (datetime.now() + timedelta(days=3)).isoformat(),
+            },
+        }
+
+        return json.dumps(maintenance_data, indent=2)
+
+    except Exception as e:
+        logger.error(f"Maintenance scheduler error: {str(e)}")
+        return json.dumps(
+            {
+                "tool": "Equipment Maintenance Scheduler",
+                "status": "error",
+                "error_message": str(e),
+                "equipment_type": equipment_type,
+            },
+            indent=2,
+        )
