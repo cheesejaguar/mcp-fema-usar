@@ -56,7 +56,9 @@ class TestToolIntegration:
         assert search_data["status"] == "success"
         # Check that personnel status exists in the data
         assert "personnel_status" in tfl_data["data"]
-        assert "data" in search_data  # search_data has 'data' key, not 'search_operations'
+        assert (
+            "data" in search_data
+        )  # search_data has 'data' key, not 'search_operations'
 
     @pytest.mark.integration
     def test_search_to_rescue_handoff(self):
@@ -79,10 +81,7 @@ class TestToolIntegration:
         # Verify operational continuity
         assert search_data["status"] == "success"
         assert rescue_data["status"] == "success"
-        assert (
-            rescue_data["data"]["operation_type"]
-            == "victim_extrication"
-        )
+        assert rescue_data["data"]["operation_type"] == "victim_extrication"
 
     @pytest.mark.integration
     def test_rescue_to_medical_coordination(self):
@@ -117,10 +116,7 @@ class TestToolIntegration:
         # Verify patient continuity
         assert extraction_data["status"] == "success"
         assert medical_data["status"] == "success"
-        assert (
-            medical_data["data"]["patient_identification"]["patient_id"]
-            == "VIC-001"
-        )
+        assert medical_data["data"]["patient_identification"]["patient_id"] == "VIC-001"
 
     @pytest.mark.integration
     def test_planning_to_logistics_integration(self):
@@ -483,7 +479,9 @@ class TestDataFlowIntegration:
         planning_data = json.loads(planning_result)
 
         # Verify incident ID propagation
-        assert planning_data["incident_id"] == incident_id or "incident_id" in str(planning_result)
+        assert planning_data["incident_id"] == incident_id or "incident_id" in str(
+            planning_result
+        )
         assert planning_data["status"] == "success"
 
     @pytest.mark.integration
