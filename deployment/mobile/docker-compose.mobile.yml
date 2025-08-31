@@ -1,0 +1,287 @@
+version: '3.8'
+
+# Mobile/Field Deployment Configuration for FEMA USAR MCP
+# Optimized for edge computing, limited bandwidth, and offline capabilities
+
+services:
+  # FEMA USAR MCP Server - Mobile Configuration
+  fema-usar-mcp-mobile:
+    build:
+      context: ../..
+      dockerfile: deployment/mobile/Dockerfile.mobile
+    image: fema-usar-mcp:mobile
+    container_name: fema-usar-mcp-mobile
+    restart: unless-stopped
+    depends_on:
+      - sqlite-db
+      - redis-mobile
+    environment:
+      - ENVIRONMENT=mobile
+      - DATABASE_URL=sqlite:///app/data/mobile.db
+      - REDIS_URL=redis://redis-mobile:6379/0
+      - MOBILE_MODE=true
+      - OFFLINE_CAPABLE=true
+      - BANDWIDTH_LIMITED=true
+      - SYNC_INTERVAL=300
+      - MAX_CACHE_SIZE_MB=500
+      - LOG_LEVEL=INFO
+      - COMPRESSION_ENABLED=true
+      - BATTERY_OPTIMIZATION=true
+      - GPS_ENABLED=true
+      - SATELLITE_BACKUP=true
+    volumes:
+      - mobile_data:/app/data
+      - mobile_logs:/app/logs
+      - mobile_cache:/app/cache
+      - /dev/gps0:/dev/gps0:ro  # GPS device
+    networks:
+      - mobile_network
+    ports:
+      - "8080:8000"  # Different port for mobile
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0  # Serial for satellite communication
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 2
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    cap_add:
+      - SYS_TIME  # For GPS time sync
+    security_opt:
+      - no-new-privileges:true
+
+  # Lightweight SQLite Database
+  sqlite-db:
+    image: alpine:3.18
+    container_name: mobile-sqlite
+    restart: unless-stopped
+    volumes:
+      - mobile_data:/data
+    command: >
+      sh -c "
+        apk add --no-cache sqlite &&
+        mkdir -p /data &&
+        sqlite3 /data/mobile.db '.databases' &&
+        tail -f /dev/null
+      "
+    networks:
+      - mobile_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+
+  # Redis - Mobile Configuration
+  redis-mobile:
+    image: redis:7-alpine
+    container_name: mobile-redis
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --maxmemory 128mb 
+      --maxmemory-policy allkeys-lru
+      --save 300 1
+      --appendonly yes
+      --appendfsync everysec
+    volumes:
+      - mobile_cache:/data
+    networks:
+      - mobile_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 192M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # Nginx - Mobile/Edge Configuration
+  nginx-mobile:
+    image: nginx:1.25-alpine
+    container_name: mobile-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./mobile/nginx.conf:/etc/nginx/nginx.conf:ro
+      - mobile_logs:/var/log/nginx
+      - mobile_cache:/var/cache/nginx
+    networks:
+      - mobile_network
+    depends_on:
+      - fema-usar-mcp-mobile
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+
+  # Offline Sync Service
+  sync-service:
+    build:
+      context: ../..
+      dockerfile: deployment/mobile/Dockerfile.sync
+    image: fema-usar-sync:mobile
+    container_name: mobile-sync
+    restart: unless-stopped
+    depends_on:
+      - fema-usar-mcp-mobile
+    environment:
+      - SYNC_MODE=mobile
+      - HQ_SERVER_URL=${HQ_SERVER_URL}
+      - SYNC_INTERVAL=300
+      - CONFLICT_RESOLUTION=mobile_priority
+      - COMPRESSION_ENABLED=true
+      - ENCRYPTION_ENABLED=true
+      - BANDWIDTH_LIMIT_MBPS=10
+      - SYNC_RETRY_ATTEMPTS=5
+    volumes:
+      - mobile_data:/app/data
+      - mobile_logs:/app/logs
+      - /etc/ssl/certs:/etc/ssl/certs:ro
+    networks:
+      - mobile_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+
+  # GPS Service
+  gps-service:
+    build:
+      context: ../..
+      dockerfile: deployment/mobile/Dockerfile.gps
+    image: fema-usar-gps:mobile
+    container_name: mobile-gps
+    restart: unless-stopped
+    depends_on:
+      - fema-usar-mcp-mobile
+    environment:
+      - GPS_DEVICE=/dev/gps0
+      - GPS_BAUD_RATE=9600
+      - UPDATE_INTERVAL=30
+      - ACCURACY_THRESHOLD=10
+    volumes:
+      - mobile_data:/app/data
+    networks:
+      - mobile_network
+    devices:
+      - /dev/gps0:/dev/gps0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+    privileged: true
+
+  # Satellite Communication Service
+  satcom-service:
+    build:
+      context: ../..
+      dockerfile: deployment/mobile/Dockerfile.satcom
+    image: fema-usar-satcom:mobile
+    container_name: mobile-satcom
+    restart: unless-stopped
+    depends_on:
+      - sync-service
+    environment:
+      - SATCOM_DEVICE=/dev/ttyUSB0
+      - SATCOM_PROVIDER=${SATCOM_PROVIDER:-iridium}
+      - BACKUP_ENABLED=true
+      - EMERGENCY_ONLY=false
+      - DATA_COMPRESSION=true
+      - MESSAGE_PRIORITY=true
+    volumes:
+      - mobile_data:/app/data
+      - mobile_logs:/app/logs
+    networks:
+      - mobile_network
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+    privileged: true
+
+  # Mobile Monitoring
+  monitor-mobile:
+    image: prom/prometheus:latest
+    container_name: mobile-monitor
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'  # Shorter retention for mobile
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    volumes:
+      - ./mobile/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - mobile_metrics:/prometheus
+    networks:
+      - mobile_network
+    ports:
+      - "9090:9090"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+
+  # Battery Management Service
+  battery-mgmt:
+    build:
+      context: ../..
+      dockerfile: deployment/mobile/Dockerfile.battery
+    image: fema-usar-battery:mobile
+    container_name: mobile-battery
+    restart: unless-stopped
+    environment:
+      - BATTERY_MONITORING=true
+      - LOW_BATTERY_THRESHOLD=20
+      - CRITICAL_BATTERY_THRESHOLD=10
+      - POWER_SAVING_MODE=auto
+      - CPU_THROTTLING=true
+      - DISPLAY_BRIGHTNESS=auto
+    volumes:
+      - /sys/class/power_supply:/sys/class/power_supply:ro
+      - mobile_logs:/app/logs
+    networks:
+      - mobile_network
+    privileged: true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 64M
+
+volumes:
+  mobile_data:
+    driver: local
+  mobile_logs:
+    driver: local
+  mobile_cache:
+    driver: local
+  mobile_metrics:
+    driver: local
+
+networks:
+  mobile_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16

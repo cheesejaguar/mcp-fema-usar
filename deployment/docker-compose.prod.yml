@@ -1,0 +1,312 @@
+version: '3.8'
+
+services:
+  # FEMA USAR MCP Server
+  fema-usar-mcp:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.prod
+    image: fema-usar-mcp:latest
+    container_name: fema-usar-mcp
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      - nginx
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://usar_user:${POSTGRES_PASSWORD}@postgres:5432/fema_usar_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - FEMA_IRIS_API_KEY=${FEMA_IRIS_API_KEY}
+      - FEMA_IRIS_SECRET=${FEMA_IRIS_SECRET}
+      - NIMS_ICT_USERNAME=${NIMS_ICT_USERNAME}
+      - NIMS_ICT_PASSWORD=${NIMS_ICT_PASSWORD}
+      - NIMS_ICT_ORG_ID=${NIMS_ICT_ORG_ID}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - BACKUP_ENCRYPTION_KEY=${BACKUP_ENCRYPTION_KEY}
+      - LOG_LEVEL=INFO
+      - ENABLE_METRICS=true
+      - ENABLE_TRACING=true
+    volumes:
+      - usar_data:/app/data
+      - usar_logs:/app/logs
+      - usar_backups:/app/backups
+      - usar_certs:/app/certs:ro
+    networks:
+      - fema_usar_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    security_opt:
+      - no-new-privileges:true
+    user: "1000:1000"
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: fema-usar-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=fema_usar_db
+      - POSTGRES_USER=usar_user
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./postgres/config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    networks:
+      - fema_usar_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usar_user -d fema_usar_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    security_opt:
+      - no-new-privileges:true
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: fema-usar-redis
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - fema_usar_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+    security_opt:
+      - no-new-privileges:true
+
+  # Nginx Reverse Proxy & Load Balancer
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: fema-usar-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/sites-available:/etc/nginx/sites-available:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - usar_logs:/var/log/nginx
+    networks:
+      - fema_usar_network
+    depends_on:
+      - fema-usar-mcp
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fema-usar-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - fema_usar_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+    security_opt:
+      - no-new-privileges:true
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fema-usar-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_DISABLE_GRAVATAR=true
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - fema_usar_network
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+    security_opt:
+      - no-new-privileges:true
+
+  # Log Aggregation - Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: fema-usar-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/loki
+      - ./loki/config.yml:/etc/loki/local-config.yaml:ro
+    networks:
+      - fema_usar_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+    security_opt:
+      - no-new-privileges:true
+
+  # Log Collection - Promtail
+  promtail:
+    image: grafana/promtail:latest
+    container_name: fema-usar-promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml:ro
+      - usar_logs:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - fema_usar_network
+    depends_on:
+      - loki
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+
+  # Backup Service
+  backup:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.backup
+    container_name: fema-usar-backup
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://usar_user:${POSTGRES_PASSWORD}@postgres:5432/fema_usar_db
+      - BACKUP_ENCRYPTION_KEY=${BACKUP_ENCRYPTION_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - S3_BACKUP_BUCKET=${S3_BACKUP_BUCKET}
+    volumes:
+      - usar_backups:/app/backups
+      - postgres_data:/var/lib/postgresql/data:ro
+    networks:
+      - fema_usar_network
+    depends_on:
+      - postgres
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.1'
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+  usar_data:
+    driver: local
+  usar_logs:
+    driver: local
+  usar_backups:
+    driver: local
+  usar_certs:
+    driver: local
+
+networks:
+  fema_usar_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

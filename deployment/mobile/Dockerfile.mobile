@@ -1,0 +1,112 @@
+# Mobile/Field Deployment Dockerfile for FEMA USAR MCP
+FROM python:3.11-slim as builder
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    libffi-dev \
+    libssl-dev \
+    curl \
+    gpsd \
+    gpsd-clients \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create and set working directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies for mobile
+COPY requirements/mobile.txt requirements.txt
+RUN pip install --user --no-warn-script-location -r requirements.txt
+
+# Production stage for mobile deployment
+FROM python:3.11-slim
+
+# Set environment variables for mobile
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/home/app/.local/bin:${PATH}"
+ENV ENVIRONMENT=mobile
+ENV MOBILE_MODE=true
+
+# Install mobile-specific runtime dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    gpsd \
+    gpsd-clients \
+    sqlite3 \
+    minicom \
+    socat \
+    wireless-tools \
+    rfkill \
+    bluetooth \
+    bluez \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user for mobile
+RUN groupadd -r mobile && useradd -r -g mobile mobile
+
+# Create app directory structure for mobile deployment
+RUN mkdir -p /app/data /app/logs /app/cache /app/config /app/offline \
+    && chown -R mobile:mobile /app
+
+# Set working directory
+WORKDIR /app
+
+# Copy Python packages from builder stage
+COPY --from=builder --chown=mobile:mobile /root/.local /home/mobile/.local
+
+# Copy application code
+COPY --chown=mobile:mobile . .
+
+# Copy mobile-specific configuration
+COPY --chown=mobile:mobile deployment/mobile/config/ /app/config/
+
+# Create mobile-specific directories and set permissions
+RUN mkdir -p /app/temp /app/sync /app/gps /app/satcom \
+    && chown -R mobile:mobile /app \
+    && chmod -R 755 /app \
+    && chmod 644 /app/fema_usar_mcp/*.py \
+    && chmod 644 /app/fema_usar_mcp/tools/*.py \
+    && chmod +x /app/scripts/mobile/*.sh
+
+# Switch to non-root user
+USER mobile
+
+# Create mobile health check script
+RUN echo '#!/bin/bash\n\
+# Mobile-specific health check\n\
+HEALTH_URL="http://localhost:8000/health"\n\
+MOBILE_STATUS="http://localhost:8000/mobile/status"\n\
+\n\
+# Check main service\n\
+if ! curl -f "$HEALTH_URL" >/dev/null 2>&1; then\n\
+    exit 1\n\
+fi\n\
+\n\
+# Check mobile-specific status\n\
+if ! curl -f "$MOBILE_STATUS" >/dev/null 2>&1; then\n\
+    exit 1\n\
+fi\n\
+\n\
+exit 0' > /app/healthcheck.sh \
+    && chmod +x /app/healthcheck.sh
+
+# Expose port for mobile deployment
+EXPOSE 8000
+
+# Health check optimized for mobile
+HEALTHCHECK --interval=60s --timeout=15s --start-period=45s --retries=2 \
+    CMD ["/app/healthcheck.sh"]
+
+# Mobile startup command
+CMD ["python", "-m", "fema_usar_mcp.mobile.server"]

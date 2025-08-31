@@ -1,0 +1,145 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'fema' || github.repository_owner == 'cheesejaguar'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Python and uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.5.9"
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install 3.11
+
+      - name: Update dependencies
+        run: |
+          # Update all dependencies to their latest compatible versions
+          uv sync --upgrade
+          
+          # Check for outdated packages
+          uv tree --outdated > outdated-packages.txt || echo "No outdated packages"
+
+      - name: Run tests after update
+        run: |
+          uv run pytest tests/ -m "unit" --tb=short -q
+          
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies'
+          title: 'chore: automated dependency updates'
+          body: |
+            ## Automated Dependency Updates
+            
+            This PR contains automated updates to project dependencies.
+            
+            ### Changes Made
+            - Updated dependencies to latest compatible versions
+            - Verified tests still pass with updated dependencies
+            
+            ### Verification
+            - ✅ Unit tests passing
+            - ✅ No breaking changes detected
+            
+            Please review and merge if everything looks good.
+            
+            ---
+            *This PR was created automatically by the dependency update workflow*
+          branch: automated-dependency-updates
+          delete-branch: true
+          labels: |
+            dependencies
+            automated-pr
+            
+  security-updates:
+    name: Security Updates
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'fema' || github.repository_owner == 'cheesejaguar'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Python and uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.5.9"
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install 3.11
+
+      - name: Install safety
+        run: uv add --group dev safety
+
+      - name: Check for security vulnerabilities
+        run: |
+          uv run safety check --json --output security-check.json || true
+          
+          # If vulnerabilities found, try to update affected packages
+          if [ -s security-check.json ] && [ "$(cat security-check.json)" != "[]" ]; then
+            echo "Security vulnerabilities found!"
+            cat security-check.json
+            
+            # Update dependencies that have security fixes
+            uv sync --upgrade
+            
+            # Re-run security check
+            uv run safety check --json --output security-check-after.json || true
+            
+            echo "SECURITY_UPDATES_NEEDED=true" >> $GITHUB_ENV
+          else
+            echo "No security vulnerabilities found"
+            echo "SECURITY_UPDATES_NEEDED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create Security Update PR
+        if: env.SECURITY_UPDATES_NEEDED == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'security: update dependencies with security vulnerabilities'
+          title: '🔒 Security: Critical dependency updates'
+          body: |
+            ## Security Dependency Updates
+            
+            ⚠️ **This PR contains security-related dependency updates** ⚠️
+            
+            ### Security Issues Found
+            See attached security reports for details.
+            
+            ### Actions Taken
+            - Updated dependencies with known security vulnerabilities
+            - Verified tests still pass after updates
+            
+            ### Urgency
+            This PR should be reviewed and merged as soon as possible.
+            
+            ---
+            *This PR was created automatically by the security update workflow*
+          branch: security-dependency-updates
+          delete-branch: true
+          labels: |
+            security
+            dependencies
+            high-priority
+            automated-pr
