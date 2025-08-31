@@ -176,7 +176,7 @@ class TestBuildingCollapseSimulation:
         deployment_data = json.loads(deployment_result)
         assert deployment_data["status"] == "success"
         print(
-            f"✓ Task force CA-TF1 deployed with {deployment_data['dashboard']['personnel']['total_personnel']} personnel"
+            f"✓ Task force CA-TF1 deployed with {deployment_data['data']['summary']['total_personnel']} personnel"
         )
 
         # Initial structural assessment
@@ -234,18 +234,33 @@ class TestBuildingCollapseSimulation:
 
         rescue_operations = []
         for victim in victims:
+            # Map accessibility and conditions to rescue tool values
+            access_difficulty_mapping = {
+                "easy": "clear",
+                "moderate": "moderate", 
+                "difficult": "complex",
+                "extremely_difficult": "extremely_difficult"
+            }
+            
+            condition_mapping = {
+                "stable_conscious": "stable_conscious",
+                "stable_unconscious": "unconscious", 
+                "critical_conscious": "critical",
+                "critical_unconscious": "critical"
+            }
+            
             # Plan victim extraction
             extraction_result = victim_extraction_planner(
                 victim_id=victim["victim_id"],
                 victim_location=victim["location"],
                 extraction_method=(
-                    "horizontal_removal"
+                    "manual"
                     if victim["accessibility"] in ["easy", "moderate"]
                     else "vertical_lift"
                 ),
-                victim_condition=victim["condition"],
+                victim_condition=condition_mapping[victim["condition"]],
                 entrapment_type=victim["entrapment_type"],
-                access_difficulty=victim["accessibility"],
+                access_difficulty=access_difficulty_mapping[victim["accessibility"]],
             )
             extraction_data = json.loads(extraction_result)
             assert extraction_data["status"] == "success"
