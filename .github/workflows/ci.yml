@@ -287,9 +287,9 @@ jobs:
           
       - name: Validate package
         run: |
-          uv add --dev dist/*.whl
-          uv run python -c "import fema_usar_mcp; print('Package installed successfully')"
-          uv run fema-usar-mcp --help || echo "Entry point validation (may fail in headless mode)"
+          uv pip install --system dist/*.whl
+          python -c "import fema_usar_mcp; print('Package installed successfully')"
+          fema-usar-mcp --help || echo "Entry point validation (may fail in headless mode)"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
