@@ -592,8 +592,8 @@ class DatabaseBackupEngine:
                         result = conn.execute(
                             text(
                                 f"""
-                            SELECT * FROM {table} 
-                            WHERE updated_at > :since_time 
+                            SELECT * FROM {table}
+                            WHERE updated_at > :since_time
                             OR created_at > :since_time
                         """
                             ),

@@ -421,12 +421,12 @@ class AuditLogger:
                     full_key = f"{prefix}.{key}" if prefix else key
                     if key.lower() in sensitive_keys:
                         return True
-                    if isinstance(value, (dict, list)):
+                    if isinstance(value, dict | list):
                         if check_keys(value, full_key):
                             return True
             elif isinstance(obj, list):
                 for i, item in enumerate(obj):
-                    if isinstance(item, (dict, list)):
+                    if isinstance(item, dict | list):
                         if check_keys(item, f"{prefix}[{i}]"):
                             return True
             return False
@@ -449,11 +449,11 @@ class AuditLogger:
                     }:
                         if isinstance(value, str):
                             obj[key] = self.fernet.encrypt(value.encode()).decode()
-                    elif isinstance(value, (dict, list)):
+                    elif isinstance(value, dict | list):
                         encrypt_sensitive(value)
             elif isinstance(obj, list):
                 for item in obj:
-                    if isinstance(item, (dict, list)):
+                    if isinstance(item, dict | list):
                         encrypt_sensitive(item)
 
         encrypt_sensitive(encrypted_data)
@@ -794,8 +794,8 @@ class ComplianceReporter:
             "event_type_distribution": event_types,
             "severity_distribution": severity_dist,
             "success_rate_percent": success_rate,
-            "unique_users": len(set(e.user_id for e in events if e.user_id)),
-            "time_span_days": len(set(e.timestamp.date() for e in events)),
+            "unique_users": len({e.user_id for e in events if e.user_id}),
+            "time_span_days": len({e.timestamp.date() for e in events}),
         }
 
     def _generate_recommendations(self, findings: list[dict[str, Any]]) -> list[str]:

@@ -229,7 +229,7 @@ def submit_async_operation(operation: str, parameters: str = "{}") -> str:
             time.sleep(1)  # Simulate work
             return {"operation": operation, "parameters": params, "result": "completed"}
 
-        future = submit_async_task(task_id, dummy_operation)
+        submit_async_task(task_id, dummy_operation)
 
         return json.dumps(
             {

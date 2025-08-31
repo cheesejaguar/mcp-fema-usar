@@ -977,7 +977,7 @@ def ground_support_tracker(
                 }
 
         if tracking_mode in ["fuel", "all"]:
-            fuel_data = _calculate_fuel_consumption_rates()
+            _calculate_fuel_consumption_rates()  # Calculate but don't store unused result
             tracking_data["fuel_tracking"] = {
                 "total_fuel_consumption_today": {
                     "gasoline_gallons": 127,

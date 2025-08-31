@@ -55,8 +55,8 @@ FUNCTIONAL_GROUPS = {
 # Check for optional dependencies
 ADVANCED_INTEGRATION_AVAILABLE = True
 try:
-    import numpy as np
-    import pandas as pd
+    import numpy  # noqa: F401
+    import pandas  # noqa: F401
 except ImportError:
     ADVANCED_INTEGRATION_AVAILABLE = False
     logger.warning(
@@ -236,7 +236,7 @@ def calculate_deployment_readiness(
 
     except Exception as e:
         logger.error(f"Deployment readiness calculation error: {str(e)}", exc_info=True)
-        raise USARError(f"Readiness calculation failed: {str(e)}")
+        raise USARError(f"Readiness calculation failed: {str(e)}") from e
 
 
 def process_safety_alert(alert: SafetyAlert) -> dict[str, Any]:
@@ -284,7 +284,7 @@ def process_safety_alert(alert: SafetyAlert) -> dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Safety alert processing error: {str(e)}", exc_info=True)
-        raise USARError(f"Alert processing failed: {str(e)}")
+        raise USARError(f"Alert processing failed: {str(e)}") from e
 
 
 def generate_safety_recommendations(alert: SafetyAlert) -> list[str]:

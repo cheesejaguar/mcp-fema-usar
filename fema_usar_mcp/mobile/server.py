@@ -499,7 +499,7 @@ class MobileServer:
 
                 cursor.execute(
                     """
-                    INSERT INTO mobile_status 
+                    INSERT INTO mobile_status
                     (battery_level, gps_lat, gps_lon, network_quality, sync_status, data_cached_mb)
                     VALUES (?, ?, ?, ?, ?, ?)
                 """,
@@ -521,9 +521,9 @@ class MobileServer:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
-                    DELETE FROM mobile_status 
+                    DELETE FROM mobile_status
                     WHERE id < (
-                        SELECT id FROM mobile_status 
+                        SELECT id FROM mobile_status
                         ORDER BY id DESC LIMIT 1000, 1
                     )
                 """

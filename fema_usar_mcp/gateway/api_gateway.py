@@ -511,7 +511,7 @@ class APIGateway:
 
         except ClientError as e:
             server.failed_requests += 1
-            raise Exception(f"Backend request failed: {str(e)}")
+            raise Exception(f"Backend request failed: {str(e)}") from e
         finally:
             # Decrement active connections
             server.active_connections = max(0, server.active_connections - 1)

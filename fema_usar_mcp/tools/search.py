@@ -208,7 +208,7 @@ def _optimize_search_patterns_ai(
     current_patterns: dict[str, Any], use_deterministic: bool = True
 ) -> dict[str, Any]:
     """Use AI to optimize search patterns for maximum efficiency."""
-    ai_models = _initialize_ai_models()
+    _initialize_ai_models()  # Initialize but don't store unused result
 
     # Use deterministic data for testing/development
     if use_deterministic:

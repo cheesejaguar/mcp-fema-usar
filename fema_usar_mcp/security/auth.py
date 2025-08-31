@@ -316,10 +316,10 @@ class JWTManager:
                 algorithms=[self.config.JWT_ALGORITHM],
             )
             return payload
-        except jwt.ExpiredSignatureError:
-            raise jwt.InvalidTokenError("Token has expired")
-        except jwt.InvalidTokenError:
-            raise jwt.InvalidTokenError("Invalid token")
+        except jwt.ExpiredSignatureError as e:
+            raise jwt.InvalidTokenError("Token has expired") from e
+        except jwt.InvalidTokenError as e:
+            raise jwt.InvalidTokenError("Invalid token") from e
 
     def refresh_access_token(self, refresh_token: str, user: USARUser) -> str:
         """Refresh access token using refresh token.
@@ -684,7 +684,7 @@ class USARAuthenticationManager:
             )
 
         # Hash password
-        hashed_password = self.password_mgr.hash_password(password)
+        self.password_mgr.hash_password(password)
 
         # Create user
         user = USARUser(
