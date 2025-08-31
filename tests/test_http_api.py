@@ -206,7 +206,7 @@ class TestCORSAndSecurity:
     @pytest.mark.unit
     def test_cors_headers_present(self, test_client: TestClient):
         """Test that CORS headers are present."""
-        response = test_client.options("/health")
+        _ = test_client.options("/health")  # response (unused)
         # In test environment, CORS middleware should be configured
         # The actual headers depend on the CORS configuration
 

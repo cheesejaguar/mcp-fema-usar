@@ -329,7 +329,7 @@ class TestErrorHandlingAndResilience:
     def test_system_recovery_after_failure(self):
         """Test system recovery capabilities after component failure."""
         # Simulate a failure scenario and recovery
-        with patch("fema_usar_mcp.tools.command.logger.error") as mock_logger:
+        with patch("fema_usar_mcp.tools.command.logger.error"):
             # This should not cause system failure
             result = task_force_leader_dashboard("TEST-TF1")
             data = json.loads(result)

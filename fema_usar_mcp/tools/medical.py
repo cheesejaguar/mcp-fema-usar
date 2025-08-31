@@ -929,7 +929,7 @@ def health_surveillance(
         surveillance_time = datetime.now()
 
         # Define health monitoring parameters
-        health_parameters = {
+        _ = {  # health_parameters (unused)
             "vital_signs": [
                 "temperature",
                 "blood_pressure",

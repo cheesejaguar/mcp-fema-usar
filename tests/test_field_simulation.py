@@ -9,6 +9,7 @@ from typing import Any
 import pytest
 
 from fema_usar_mcp.tools.command import (
+    personnel_accountability,
     safety_officer_monitor,
     task_force_leader_dashboard,
 )
@@ -24,7 +25,13 @@ from fema_usar_mcp.tools.search import (
     technical_search_equipment,
     victim_location_tracker,
 )
-from fema_usar_mcp.tools.technical import hazmat_monitoring, structural_assessment
+from fema_usar_mcp.tools.technical import (
+    communications_manager,
+    environmental_monitor,
+    hazmat_monitoring,
+    maintenance_scheduler,
+    structural_assessment,
+)
 
 
 class FieldSimulationEnvironment:
@@ -381,7 +388,7 @@ class TestEarthquakeResponseSimulation:
     @pytest.mark.slow
     def test_earthquake_response_simulation(self):
         """Test complete earthquake response scenario."""
-        incident_id = self.scenario["incident_id"]
+        _ = self.scenario["incident_id"]  # incident_id (unused)
 
         print("\n=== EARTHQUAKE RESPONSE SIMULATION ===")
         print(f"Magnitude: {self.scenario['earthquake_details']['magnitude']}")
@@ -433,7 +440,7 @@ class TestEnvironmentalChallengeSimulation:
     @pytest.mark.simulation
     def test_weather_impact_simulation(self):
         """Test operations under various weather conditions."""
-        sim_env = FieldSimulationEnvironment()
+        _ = FieldSimulationEnvironment()  # sim_env (unused)
 
         # Simulate operations under different weather conditions
         weather_scenarios = [
