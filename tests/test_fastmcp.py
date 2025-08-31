@@ -40,12 +40,16 @@ class TestFastMCPServerInitialization:
             if hasattr(mcp, attr):
                 tools_attr = getattr(mcp, attr)
                 if isinstance(tools_attr, dict):
-                    _ = [tool.name for tool in tools_attr.values() if hasattr(tool, 'name')]  # noqa: F841
+                    _ = [
+                        tool.name
+                        for tool in tools_attr.values()
+                        if hasattr(tool, "name")
+                    ]  # noqa: F841
                     _ = True  # tools_found  # noqa: F841
                     break
-                elif hasattr(tools_attr, '__iter__'):
+                elif hasattr(tools_attr, "__iter__"):
                     try:
-                        _ = [tool.name for tool in tools_attr if hasattr(tool, 'name')]  # noqa: F841
+                        _ = [tool.name for tool in tools_attr if hasattr(tool, "name")]  # noqa: F841
                         _ = True  # tools_found  # noqa: F841
                         break
                     except (AttributeError, TypeError):

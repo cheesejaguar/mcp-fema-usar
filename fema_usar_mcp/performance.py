@@ -612,9 +612,7 @@ def performance_optimized_tool(
             @wraps(cached_func)
             def async_wrapper(*args, **kwargs):
                 task_id = f"{func.__name__}_{int(time.time() * 1000)}"
-                _task_manager.submit_task(
-                    task_id, cached_func, *args, **kwargs
-                )
+                _task_manager.submit_task(task_id, cached_func, *args, **kwargs)
 
                 # For async mode, return task ID instead of result
                 return json.dumps(
