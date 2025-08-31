@@ -220,6 +220,7 @@ def victim_extraction_planner(
 
         condition_modifiers = {
             "conscious": {"urgency": "standard", "medical_support": 1},
+            "stable_conscious": {"urgency": "standard", "medical_support": 1},
             "unconscious": {"urgency": "elevated", "medical_support": 2},
             "critical": {"urgency": "immediate", "medical_support": 3},
             "deceased": {"urgency": "recovery", "medical_support": 1},
