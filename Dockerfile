@@ -6,8 +6,8 @@ ENV PYTHONUNBUFFERED=1
 # Set the working directory
 WORKDIR /app
 
-# Copy pyproject.toml and install dependencies using pip
-COPY pyproject.toml ./
+# Copy pyproject.toml and README.md for package installation
+COPY pyproject.toml README.md ./
 RUN pip install --no-cache-dir .
 
 # Copy application files
