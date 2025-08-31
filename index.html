@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEMA USAR MCP - Urban Search and Rescue Model Context Protocol</title>
+    <meta name="description" content="A Model Context Protocol server for FEMA Urban Search and Rescue operations, providing AI-powered assistance for emergency responders during training and exercises.">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            color: white;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 1rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
+            border-left: 5px solid #c0392b;
+        }
+        
+        .alert-banner h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+        
+        /* Main Content */
+        main {
+            background: white;
+            margin: 2rem 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .content {
+            padding: 3rem;
+        }
+        
+        .section {
+            margin-bottom: 3rem;
+        }
+        
+        .section h2 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .tech-badge {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* CTA Section */
+        .cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .cta h2 {
+            border: none;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0.5rem;
+            transition: all 0.3s;
+            border: 2px solid white;
+        }
+        
+        .btn:hover {
+            background: transparent;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .content {
+                padding: 2rem 1rem;
+            }
+            
+            .cta {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">🚨 FEMA USAR MCP</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#technology">Technology</a></li>
+                <li><a href="#feedback">Feedback</a></li>
+                <li><a href="https://github.com/cheesejaguar/mcp-fema-usar">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>FEMA USAR MCP</h1>
+            <p>AI-Powered Urban Search and Rescue Operations Support</p>
+            <p>A Model Context Protocol server designed to assist emergency responders with USAR operations, ICS/NIMS compliance, and operational coordination.</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="alert-banner">
+            <h3><span class="alert-icon">⚠️</span> PRELIMINARY ALPHA RELEASE - NOT FOR OPERATIONAL USE</h3>
+            <p><strong>This software is in early development and should NOT be used during actual disaster response operations.</strong> It is intended for training exercises, educational purposes, and collecting feedback from emergency response professionals. Always follow established protocols and use approved systems for real emergency situations.</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="content">
+            <section id="features" class="section">
+                <h2>🎯 Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>🏢 ICS/NIMS Integration</h3>
+                        <p>Built-in support for Incident Command System and National Incident Management System protocols, ensuring compliance with established emergency response frameworks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>👥 Personnel Management</h3>
+                        <p>Track task force personnel, maintain accountability, and manage resource allocation across all functional groups in USAR operations.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🔍 Search Operations</h3>
+                        <p>Coordinate search activities, track victim locations, and manage search patterns with AI-powered operational insights.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🚑 Medical Support</h3>
+                        <p>Manage patient care, track medical supplies, and coordinate with medical facilities during rescue operations.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🛠️ Equipment Tracking</h3>
+                        <p>Monitor specialized USAR equipment, schedule maintenance, and ensure operational readiness of critical tools.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📊 Real-time Dashboards</h3>
+                        <p>Access comprehensive dashboards for task force leaders, safety officers, and other key personnel with live operational data.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="technology" class="section">
+                <h2>⚙️ Technology Stack</h2>
+                <p>Built on modern, reliable technologies designed for emergency response environments:</p>
+                <div class="tech-stack">
+                    <span class="tech-badge">Model Context Protocol</span>
+                    <span class="tech-badge">Python 3.11+</span>
+                    <span class="tech-badge">FastMCP</span>
+                    <span class="tech-badge">FastAPI</span>
+                    <span class="tech-badge">Docker</span>
+                    <span class="tech-badge">GitHub Actions</span>
+                    <span class="tech-badge">Automated Testing</span>
+                </div>
+                <p>The system follows FEMA USAR operational guidelines and integrates with standard emergency response protocols. All code is open source and available for review by emergency response professionals.</p>
+            </section>
+
+            <section class="section">
+                <h2>📋 Current Capabilities</h2>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                    <li><strong>Command & Control:</strong> Task force leader dashboards and operational oversight</li>
+                    <li><strong>Safety Operations:</strong> Real-time safety monitoring and hazard management</li>
+                    <li><strong>Search Activities:</strong> Victim location tracking and search coordination</li>
+                    <li><strong>Rescue Operations:</strong> Resource allocation and rescue planning</li>
+                    <li><strong>Medical Support:</strong> Patient tracking and medical resource management</li>
+                    <li><strong>Technical Operations:</strong> Structural assessment and hazmat monitoring</li>
+                    <li><strong>Logistics:</strong> Supply management and equipment tracking</li>
+                    <li><strong>Planning:</strong> Resource planning and situation analysis</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <section class="cta">
+        <div class="container">
+            <h2 id="feedback">🤝 Seeking Feedback from Emergency Response Professionals</h2>
+            <p style="margin-bottom: 2rem;">We're looking for input from USAR teams, emergency managers, and training coordinators to improve this tool for educational and training purposes.</p>
+            <a href="https://github.com/cheesejaguar/mcp-fema-usar/issues" class="btn">📝 Provide Feedback</a>
+            <a href="https://github.com/cheesejaguar/mcp-fema-usar" class="btn-secondary">📚 View Documentation</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 FEMA USAR MCP Project. Open Source MIT License.</p>
+            <p style="margin-top: 0.5rem; opacity: 0.8;">This project is not affiliated with FEMA or any government agency. Developed for educational and training purposes only.</p>
+        </div>
+    </footer>
+</body>
+</html>
