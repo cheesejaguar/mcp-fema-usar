@@ -6,18 +6,16 @@ ENV PYTHONUNBUFFERED=1
 # Set the working directory
 WORKDIR /app
 
-# Copy requirements file
-COPY requirements.txt .
-
-# Install runtime dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy pyproject.toml and install dependencies using pip
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir .
 
 # Copy application files
-COPY server.py ./
-COPY resources ./resources
+COPY fema_usar_mcp ./fema_usar_mcp
+COPY app ./app
 
-# Expose the port used by the application
+# Expose the port used by the application  
 EXPOSE 8000
 
-# Command to run the application
-CMD ["python", "server.py"]
+# Command to run the HTTP application
+CMD ["python", "-m", "app.main"]
