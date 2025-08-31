@@ -1803,18 +1803,18 @@ def assess_controlled_substance_security(supplies):
 
 
 def calculate_triage_capacity(triage_personnel_available, operation_mode):
-    return {
-        "max_hourly_capacity": 50,
-        "current_capacity": 45,
-        "utilization_rate": 90
-    }
+    return {"max_hourly_capacity": 50, "current_capacity": 45, "utilization_rate": 90}
 
 
-def assess_triage_resource_needs(current_census, triage_capacity, transport_availability):
+def assess_triage_resource_needs(
+    current_census, triage_capacity, transport_availability
+):
     return {}
 
 
-def identify_triage_bottlenecks(current_census, transport_availability, receiving_hospital_capacity):
+def identify_triage_bottlenecks(
+    current_census, transport_availability, receiving_hospital_capacity
+):
     return []
 
 

@@ -239,14 +239,14 @@ class TestBuildingCollapseSimulation:
                 "easy": "clear",
                 "moderate": "moderate",
                 "difficult": "complex",
-                "extremely_difficult": "extremely_difficult"
+                "extremely_difficult": "extremely_difficult",
             }
 
             condition_mapping = {
                 "stable_conscious": "stable_conscious",
                 "stable_unconscious": "unconscious",
                 "critical_conscious": "critical",
-                "critical_unconscious": "critical"
+                "critical_unconscious": "critical",
             }
 
             # Plan victim extraction
