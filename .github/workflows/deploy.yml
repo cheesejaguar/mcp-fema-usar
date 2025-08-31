@@ -50,7 +50,8 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.3.4
         with:
           ref: ${{ github.ref }}
-          check-name: 'CI Success'
+          check-regexp: '^(Pre-flight checks|Tests|Code Quality|Security Scan|Build & Package).*'
+          allowed-conclusions: success,skipped
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 15
           running-workflow-name: 'CI/CD Pipeline'
