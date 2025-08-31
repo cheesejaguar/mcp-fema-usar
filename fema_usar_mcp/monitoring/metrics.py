@@ -1,4 +1,4 @@
-"""Monitoring and metrics collection for FEMA USAR MCP.
+"""Monitoring and metrics collection for Federal USAR MCP.
 
 Provides comprehensive monitoring, alerting, and observability
 for USAR operations and system health.

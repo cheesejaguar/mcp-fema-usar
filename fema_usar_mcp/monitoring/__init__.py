@@ -1,4 +1,4 @@
-"""Monitoring module for FEMA USAR MCP.
+"""Monitoring module for Federal USAR MCP.
 
 Provides comprehensive monitoring, metrics collection, alerting, and observability
 for USAR operations and system health.

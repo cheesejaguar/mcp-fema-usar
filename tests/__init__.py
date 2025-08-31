@@ -1,1 +1,1 @@
-"""Test package for FEMA USAR MCP Server."""
+"""Test package for Federal USAR MCP Server."""

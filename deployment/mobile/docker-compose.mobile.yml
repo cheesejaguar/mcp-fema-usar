@@ -1,10 +1,10 @@
 version: '3.8'
 
-# Mobile/Field Deployment Configuration for FEMA USAR MCP
+# Mobile/Field Deployment Configuration for Federal USAR MCP
 # Optimized for edge computing, limited bandwidth, and offline capabilities
 
 services:
-  # FEMA USAR MCP Server - Mobile Configuration
+  # Federal USAR MCP Server - Mobile Configuration
   fema-usar-mcp-mobile:
     build:
       context: ../..

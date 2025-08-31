@@ -1,4 +1,4 @@
-"""FEMA USAR MCP Tools Package.
+"""Federal USAR MCP Tools Package.
 
 This package contains specialized tools organized by functional groups:
 - Command tools (Task Force Leader, Safety Officer)

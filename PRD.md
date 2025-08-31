@@ -9,15 +9,15 @@
 
 ## 📋 **Executive Summary**
 
-The FEMA Urban Search and Rescue (USAR) MCP Server provides comprehensive digital tools supporting all 28 FEMA USAR Task Forces during emergency response operations. This specialized MCP server implements domain-specific tools for each of the 70 personnel positions within a Type 1 USAR task force, enhancing operational effectiveness, safety, and coordination during disaster response missions.
+The FEMA Urban Search and Rescue (USAR) MCP Server provides comprehensive digital tools supporting all 28 Federal USAR Task Forces during emergency response operations. This specialized MCP server implements domain-specific tools for each of the 70 personnel positions within a Type 1 USAR task force, enhancing operational effectiveness, safety, and coordination during disaster response missions.
 
 ### **Problem Statement**
 
-FEMA USAR Task Forces operate in complex, time-critical environments where information management, resource coordination, and decision-making speed directly impact life safety outcomes. Current systems often lack integration between functional groups, creating information silos that slow response times and increase operational risks. Personnel struggle with manual processes for equipment tracking, resource management, and operational documentation while maintaining situational awareness across 16,400 pieces of specialized equipment.
+Federal USAR Task Forces operate in complex, time-critical environments where information management, resource coordination, and decision-making speed directly impact life safety outcomes. Current systems often lack integration between functional groups, creating information silos that slow response times and increase operational risks. Personnel struggle with manual processes for equipment tracking, resource management, and operational documentation while maintaining situational awareness across 16,400 pieces of specialized equipment.
 
 ### **Solution Overview**
 
-The FEMA USAR MCP Server provides 35+ specialized tools organized by functional group (Command, Search, Rescue, Medical, Planning, Logistics) and integrated with existing NIMS/ICS protocols. The system ensures 72-96 hour self-sufficiency through offline capabilities, redundant data storage, and seamless integration with federal emergency management systems.
+The Federal USAR MCP Server provides 35+ specialized tools organized by functional group (Command, Search, Rescue, Medical, Planning, Logistics) and integrated with existing NIMS/ICS protocols. The system ensures 72-96 hour self-sufficiency through offline capabilities, redundant data storage, and seamless integration with federal emergency management systems.
 
 ### **Success Metrics**
 
@@ -32,7 +32,7 @@ The FEMA USAR MCP Server provides 35+ specialized tools organized by functional 
 ## 🎯 **Product Vision and Goals**
 
 ### **Vision Statement**
-Empower FEMA USAR Task Forces with integrated digital tools that enhance operational effectiveness, ensure personnel safety, and accelerate life-saving operations during disaster response missions.
+Empower Federal USAR Task Forces with integrated digital tools that enhance operational effectiveness, ensure personnel safety, and accelerate life-saving operations during disaster response missions.
 
 ### **Primary Goals**
 
@@ -659,7 +659,7 @@ Empower FEMA USAR Task Forces with integrated digital tools that enhance operati
 - **Description**: Limited access to active USAR personnel for requirements and testing
 - **Mitigation**:
   - Establish formal partnerships with multiple active task forces
-  - Engage FEMA USAR program office for coordination and support
+  - Engage Federal USAR program office for coordination and support
   - Plan for remote testing and feedback collection procedures
   - Develop relationships with USAR training centers and facilities
 
@@ -671,7 +671,7 @@ Empower FEMA USAR Task Forces with integrated digital tools that enhance operati
 
 #### **System Context Diagram**
 ```
-[External Systems] ←→ [FEMA USAR MCP Server] ←→ [Task Force Personnel]
+[External Systems] ←→ [Federal USAR MCP Server] ←→ [Task Force Personnel]
        ↓                        ↓                       ↓
 [FEMA IRIS]                [Core Services]         [Mobile Apps]
 [NIMS ICT]                 [Data Layer]           [Field Devices]
@@ -761,7 +761,7 @@ Field Operations → Data Collection → Processing → Analysis → Decision Su
 This Product Requirements Document provides the comprehensive foundation for developing a FEMA Urban Search and Rescue MCP Server that addresses the specific needs of all 70 personnel positions within USAR task forces. The requirements ensure operational effectiveness, safety enhancement, and seamless integration with existing federal emergency management systems while maintaining the highest standards of security and reliability required for life-saving operations.
 
 **Next Steps:**
-1. **Stakeholder Review**: Present PRD to FEMA USAR Program Office for validation and approval
+1. **Stakeholder Review**: Present PRD to Federal USAR Program Office for validation and approval
 2. **Technical Architecture**: Develop detailed system architecture and integration specifications  
 3. **Prototype Development**: Build minimal viable product focusing on core equipment and personnel management
 4. **User Testing**: Conduct prototype testing with select task forces for feedback and validation

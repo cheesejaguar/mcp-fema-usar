@@ -1,4 +1,4 @@
-"""Real-time communications module for FEMA USAR MCP.
+"""Real-time communications module for Federal USAR MCP.
 
 Provides WebSocket-based real-time communications, push notifications,
 and coordination capabilities for USAR operations.

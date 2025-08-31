@@ -1,4 +1,4 @@
-"""Core business logic and domain models for FEMA USAR operations."""
+"""Core business logic and domain models for Federal USAR operations."""
 
 from __future__ import annotations
 
@@ -365,7 +365,7 @@ def get_usar_capabilities() -> dict[str, Any]:
 def get_system_status() -> dict[str, Any]:
     """Return comprehensive system status."""
     return {
-        "system": "FEMA USAR MCP Server",
+        "system": "Federal USAR MCP Server",
         "version": "0.1.0",
         "status": "operational",
         "capabilities": get_usar_capabilities(),

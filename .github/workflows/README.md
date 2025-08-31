@@ -1,6 +1,6 @@
 # GitHub Actions Workflows
 
-This directory contains automated CI/CD workflows for the FEMA USAR MCP Server.
+This directory contains automated CI/CD workflows for the Federal USAR MCP Server.
 
 ## Workflows Overview
 

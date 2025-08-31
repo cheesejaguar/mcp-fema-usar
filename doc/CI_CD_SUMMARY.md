@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-Successfully implemented a comprehensive, performance-optimized CI/CD pipeline for the FEMA USAR MCP Server using GitHub Actions and modern DevOps practices.
+Successfully implemented a comprehensive, performance-optimized CI/CD pipeline for the Federal USAR MCP Server using GitHub Actions and modern DevOps practices.
 
 ## ✅ What Was Implemented
 

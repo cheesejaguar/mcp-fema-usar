@@ -1,4 +1,4 @@
-"""Performance optimization and caching layer for FEMA USAR MCP Server."""
+"""Performance optimization and caching layer for Federal USAR MCP Server."""
 
 import hashlib
 import json

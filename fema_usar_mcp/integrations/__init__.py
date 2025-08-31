@@ -1,4 +1,4 @@
-"""FEMA USAR MCP Integrations Package.
+"""Federal USAR MCP Integrations Package.
 
 This package contains integrations with external systems:
 - FEMA systems (IRIS, NIMS ICT)

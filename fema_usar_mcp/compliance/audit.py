@@ -1,4 +1,4 @@
-"""Compliance reporting and audit trail system for FEMA USAR MCP.
+"""Compliance reporting and audit trail system for Federal USAR MCP.
 
 Provides comprehensive audit logging, compliance reporting, and regulatory
 adherence for federal USAR operations.

@@ -14,7 +14,7 @@ class TestHealthAndStatus:
         assert response.status_code == 200
 
         data = response.json()
-        assert data["system"] == "FEMA USAR MCP Server"
+        assert data["system"] == "Federal USAR MCP Server"
         assert data["status"] == "operational"
 
     @pytest.mark.unit
@@ -24,7 +24,7 @@ class TestHealthAndStatus:
         assert response.status_code == 200
 
         data = response.json()
-        assert data["system"] == "FEMA USAR MCP Server"
+        assert data["system"] == "Federal USAR MCP Server"
         assert data["tools_available"] == 35
         assert data["task_forces_supported"] == 28
 

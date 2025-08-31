@@ -111,7 +111,7 @@ class TestSystemStatusTool:
         """Test system status retrieval."""
         status = get_system_status()
 
-        assert status["system"] == "FEMA USAR MCP Server"
+        assert status["system"] == "Federal USAR MCP Server"
         assert status["version"] == "0.1.0"
         assert status["status"] == "operational"
         assert "capabilities" in status

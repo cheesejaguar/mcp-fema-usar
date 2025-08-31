@@ -1,6 +1,6 @@
-# FEMA Urban Search and Rescue (USAR) MCP Server
+# Federal Urban Search and Rescue (USAR) MCP Server
 
-A comprehensive Model Context Protocol (MCP) server providing specialized digital tools for all 28 FEMA USAR Task Forces during emergency response operations. This server implements domain-specific tools for each of the 70 personnel positions within a Type 1 USAR task force, enhancing operational effectiveness, safety, and coordination during disaster response missions.
+A comprehensive Model Context Protocol (MCP) server providing specialized digital tools for all 28 Federal USAR Task Forces during emergency response operations. This server implements domain-specific tools for each of the 70 personnel positions within a Type 1 USAR task force, enhancing operational effectiveness, safety, and coordination during disaster response missions.
 
 ## 🚀 Features
 
@@ -14,7 +14,7 @@ A comprehensive Model Context Protocol (MCP) server providing specialized digita
 - **Technical Specialist Tools**: Structural assessment, Hazmat monitoring, Communications management
 
 ### **Federal Integration**
-- FEMA IRIS (Incident Resource Inventory System) integration
+- Federal IRIS (Incident Resource Inventory System) integration
 - NIMS/ICS protocol compliance and automation
 - Federal asset tracking system interfaces
 - Multi-band radio and satellite communication support
@@ -194,7 +194,7 @@ fema-usar-mcp/
 │   │   └── operations.py      # Mission and operation models
 │   │
 │   └── integrations/          # External system integrations
-│       ├── fema_systems.py    # FEMA IRIS, NIMS ICT integration
+│       ├── fema_systems.py    # Federal IRIS, NIMS ICT integration
 │       ├── equipment.py       # Equipment tracking systems
 │       └── communications.py  # Communication system interfaces
 │
@@ -272,7 +272,7 @@ export UVICORN_LOG_LEVEL=debug
 ### Operational Capacity
 - **Personnel Positions**: 70 tracked positions per task force
 - **Equipment Items**: 16,400+ items managed per task force
-- **Task Forces**: 28 FEMA task forces supported nationwide
+- **Task Forces**: 28 Federal task forces supported nationwide
 - **Self-Sufficiency**: 72-96 hour offline operation capability
 
 ## 🤝 Contributing
@@ -304,7 +304,7 @@ export UVICORN_LOG_LEVEL=debug
 - [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment
 
 ### Training Materials
-- FEMA USAR personnel training modules
+- Federal USAR personnel training modules
 - System administrator guides
 - Integration documentation for external systems
 - Troubleshooting and maintenance procedures
@@ -314,12 +314,12 @@ export UVICORN_LOG_LEVEL=debug
 ### Getting Help
 - **Issues**: Report bugs at [GitHub Issues](https://github.com/fema/fema-usar-mcp/issues)
 - **Documentation**: See [docs/](docs/) directory
-- **Training**: Contact FEMA USAR Program Office
+- **Training**: Contact Federal USAR Program Office
 - **Emergency Support**: 24/7 support during active deployments
 
 ### System Status
 - **Service Status**: [status.fema-usar-mcp.gov](https://status.fema-usar-mcp.gov)
-- **Maintenance Windows**: Announced via FEMA channels
+- **Maintenance Windows**: Announced via Federal channels
 - **Version Updates**: Automatic during maintenance windows
 
 ## 📄 License
@@ -328,13 +328,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🏛️ Acknowledgments
 
-- **FEMA Urban Search and Rescue Program Office** - Program oversight and requirements
-- **28 FEMA USAR Task Forces** - Operational requirements and testing
+- **Federal Urban Search and Rescue Program Office** - Program oversight and requirements
+- **28 Federal USAR Task Forces** - Operational requirements and testing
 - **National Institute of Standards and Technology (NIST)** - Cybersecurity framework
 - **Department of Homeland Security (DHS)** - Security and compliance guidance
 
 ---
 
-**For official FEMA USAR information, visit:** [https://www.fema.gov/emergency-managers/practitioners/urban-search-rescue](https://www.fema.gov/emergency-managers/practitioners/urban-search-rescue)
+**For official Federal USAR information, visit:** [https://www.fema.gov/emergency-managers/practitioners/urban-search-rescue](https://www.fema.gov/emergency-managers/practitioners/urban-search-rescue)
 
 **Emergency Response:** This system is designed to support life-saving operations. For actual emergencies, contact local emergency services immediately.

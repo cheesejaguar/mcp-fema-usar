@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # FEMA USAR MCP Server
+  # Federal USAR MCP Server
   fema-usar-mcp:
     build:
       context: ..

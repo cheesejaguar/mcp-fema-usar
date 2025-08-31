@@ -1,4 +1,4 @@
-"""Database models and persistence layer for FEMA USAR MCP.
+"""Database models and persistence layer for Federal USAR MCP.
 
 Provides SQLAlchemy models, database operations, and data management
 for USAR operations with high availability and disaster recovery.

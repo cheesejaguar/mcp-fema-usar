@@ -1,4 +1,4 @@
-"""Mobile/Field deployment server for FEMA USAR MCP.
+"""Mobile/Field deployment server for Federal USAR MCP.
 
 Optimized for edge computing, limited bandwidth, offline operations,
 and rugged field environments.
@@ -78,13 +78,13 @@ class MobileStatus(BaseModel):
 
 
 class MobileServer:
-    """Mobile FEMA USAR MCP Server."""
+    """Mobile Federal USAR MCP Server."""
 
     def __init__(self):
         """Initialize mobile server."""
         self.config = MobileConfig()
         self.app = FastAPI(
-            title="FEMA USAR MCP - Mobile",
+            title="Federal USAR MCP - Mobile",
             description="Mobile/Field deployment for FEMA Urban Search and Rescue",
             version="1.0.0",
             docs_url="/docs" if self.config.log_level == "DEBUG" else None,
@@ -590,7 +590,7 @@ async def main():
 
         uvicorn_server = uvicorn.Server(config)
 
-        logger.info("Starting FEMA USAR MCP Mobile Server")
+        logger.info("Starting Federal USAR MCP Mobile Server")
         await uvicorn_server.serve()
 
     finally:

@@ -1,4 +1,4 @@
-"""Comprehensive integration tests for FEMA USAR MCP Server."""
+"""Comprehensive integration tests for Federal USAR MCP Server."""
 
 import json
 from concurrent.futures import ThreadPoolExecutor
@@ -407,7 +407,7 @@ class TestSystemStatusIntegration:
         """Test comprehensive system health monitoring."""
         status = get_system_status()
 
-        assert status["system"] == "FEMA USAR MCP Server"
+        assert status["system"] == "Federal USAR MCP Server"
         assert status["status"] == "operational"
         assert "capabilities" in status
         assert status["capabilities"]["total_positions"] == 70

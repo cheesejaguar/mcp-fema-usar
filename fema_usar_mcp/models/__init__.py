@@ -1,4 +1,4 @@
-"""FEMA USAR MCP Models Package.
+"""Federal USAR MCP Models Package.
 
 This package contains Pydantic models for FEMA USAR domain entities:
 - Personnel models (70 positions, qualifications, tracking)

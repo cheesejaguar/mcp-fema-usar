@@ -1,4 +1,4 @@
-"""Test configuration for FEMA USAR MCP Server."""
+"""Test configuration for Federal USAR MCP Server."""
 
 from datetime import datetime
 

@@ -58,7 +58,7 @@ pip install -e .[dev,advanced,visualization,integration]
 ## Architecture Overview
 
 ### Core System Design
-This is a **FEMA Urban Search and Rescue (USAR) Model Context Protocol (MCP) server** providing AI-powered tools for emergency responders. The system supports all 28 FEMA USAR Task Forces with 70+ specialized digital tools organized by functional groups.
+This is a **Federal Urban Search and Rescue (USAR) Model Context Protocol (MCP) server** providing AI-powered tools for emergency responders. The system supports all 28 Federal USAR Task Forces with 70+ specialized digital tools organized by functional groups.
 
 ### Key Architectural Components
 
@@ -97,7 +97,7 @@ Each tool module contains 5-8 specialized functions that return JSON-formatted o
 ### Integration Architecture
 
 **Federal Systems Integration** (placeholder implementations in `fema_usar_mcp/integrations/`):
-- FEMA IRIS (Incident Resource Inventory System)
+- Federal IRIS (Incident Resource Inventory System)
 - NIMS ICT (National Incident Management System)
 - Federal asset tracking systems
 - Multi-band radio and satellite communications

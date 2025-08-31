@@ -1,4 +1,4 @@
-"""Backup and disaster recovery module for FEMA USAR MCP.
+"""Backup and disaster recovery module for Federal USAR MCP.
 
 Provides automated backup, encryption, and disaster recovery capabilities
 for critical USAR operational data.

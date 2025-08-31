@@ -306,7 +306,7 @@ def get_usar_system_status() -> str:
     try:
         status = get_system_status()
         return f"""
-# FEMA USAR MCP System Status
+# Federal USAR MCP System Status
 
 ## System Information
 - **System**: {status["system"]}
@@ -438,7 +438,7 @@ def list_functional_groups() -> str:
 def run():
     """Run the MCP server."""
     try:
-        logger.info("Starting FEMA USAR MCP server...")
+        logger.info("Starting Federal USAR MCP server...")
         logger.info(f"Server initialized with {len(mcp._tools)} tools registered")
         logger.info(
             "Functional groups supported: Command, Search, Rescue, Medical, Planning, Logistics, Technical"

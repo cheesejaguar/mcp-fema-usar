@@ -1,4 +1,4 @@
-"""FastAPI HTTP interface for FEMA USAR MCP server."""
+"""FastAPI HTTP interface for Federal USAR MCP server."""
 
 import json
 import os
@@ -57,14 +57,14 @@ class USARStatusResponse(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan management."""
-    print("🚀 FEMA USAR MCP HTTP API starting up...")
+    print("🚀 Federal USAR MCP HTTP API starting up...")
     yield
-    print("📴 FEMA USAR MCP HTTP API shutting down...")
+    print("📴 Federal USAR MCP HTTP API shutting down...")
 
 
 # Create FastAPI application
 app = FastAPI(
-    title="FEMA USAR MCP API",
+    title="Federal USAR MCP API",
     description="HTTP API for FEMA Urban Search and Rescue operations",
     version="0.1.0",
     lifespan=lifespan,
@@ -111,7 +111,7 @@ async def health_check():
 async def get_usar_status():
     """Get comprehensive USAR system status."""
     return {
-        "system": "FEMA USAR MCP Server",
+        "system": "Federal USAR MCP Server",
         "version": "0.1.0",
         "status": "operational",
         "capabilities": get_usar_capabilities(),

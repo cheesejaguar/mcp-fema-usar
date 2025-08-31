@@ -648,7 +648,7 @@ class TestStressTestSimulation:
 
 if __name__ == "__main__":
     # Run simulations directly if called as main
-    print("FEMA USAR MCP Field Simulation Test Suite")
+    print("Federal USAR MCP Field Simulation Test Suite")
     print("=========================================")
 
     # Quick smoke test

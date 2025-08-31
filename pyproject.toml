@@ -5,9 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "fema-usar-mcp"
 version = "0.1.0"
-description = "MCP server for FEMA Urban Search and Rescue operations"
+description = "MCP server for Federal Urban Search and Rescue operations"
 authors = [
-    { name = "FEMA USAR MCP Team", email = "usar-mcp@example.com" }
+    { name = "Federal USAR MCP Team", email = "hello@aeroastro.org" }
 ]
 license = { text = "MIT" }
 readme = "README.md"

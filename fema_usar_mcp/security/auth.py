@@ -1,4 +1,4 @@
-"""Authentication and authorization module for FEMA USAR MCP.
+"""Authentication and authorization module for Federal USAR MCP.
 
 Provides secure authentication, role-based access control, and session management
 for FEMA USAR personnel with integration to federal identity systems.
@@ -638,7 +638,7 @@ class RoleBasedAccessControl:
 
 
 class USARAuthenticationManager:
-    """Main authentication manager for FEMA USAR MCP."""
+    """Main authentication manager for Federal USAR MCP."""
 
     def __init__(self):
         self.config = SecurityConfig()

@@ -1,4 +1,4 @@
-"""API Gateway and load balancing for FEMA USAR MCP.
+"""API Gateway and load balancing for Federal USAR MCP.
 
 Provides intelligent routing, load balancing, circuit breaking,
 and API management capabilities for USAR operations.

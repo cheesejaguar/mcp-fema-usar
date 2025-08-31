@@ -1,4 +1,4 @@
-"""Security module for FEMA USAR MCP.
+"""Security module for Federal USAR MCP.
 
 Provides authentication, authorization, encryption, and audit capabilities
 for secure USAR operations.
