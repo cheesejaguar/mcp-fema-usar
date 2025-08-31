@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Literal
 
-from ..constants import STRUCTURAL_SAFETY_THRESHOLDS, ENVIRONMENTAL_LIMITS
+from ..constants import STRUCTURAL_SAFETY_THRESHOLDS
 
 logger = logging.getLogger(__name__)
 
@@ -400,7 +400,7 @@ def structural_assessment(
 
         # Initialize load analysis
         load_analysis = None
-        
+
         # Detailed assessment calculations
         if assessment_type in ["detailed", "ongoing"] and include_load_calculations:
             load_analysis = _calculate_structural_load_capacity(

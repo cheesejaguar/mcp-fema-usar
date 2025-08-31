@@ -995,9 +995,9 @@ class ComplianceManager:
             # For now, we'll just mark them as archived
             sql = text(
                 """
-                UPDATE audit_events 
-                SET archived = TRUE 
-                WHERE timestamp < :cutoff_date 
+                UPDATE audit_events
+                SET archived = TRUE
+                WHERE timestamp < :cutoff_date
                 AND archived IS NOT TRUE
             """
             )

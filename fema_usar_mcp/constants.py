@@ -1,7 +1,5 @@
 """Constants and configuration values for FEMA USAR operations."""
 
-from typing import Dict, Any
-
 # Safety thresholds for structural monitoring
 STRUCTURAL_SAFETY_THRESHOLDS = {
     "movement_alarm_mm": 10,

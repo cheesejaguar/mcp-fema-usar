@@ -229,6 +229,7 @@ def victim_extraction_planner(
         access_modifiers = {
             "clear": 1.0,
             "limited": 1.5,
+            "moderate": 1.8,
             "complex": 2.0,
             "extremely_difficult": 3.0,
         }

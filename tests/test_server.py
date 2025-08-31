@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 # Ensure repository root is in Python path when running via `pytest`
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from app.main import app, ICS_FORMS, OPEN_DATASETS, DOCUMENTS
+from app.main import DOCUMENTS, ICS_FORMS, OPEN_DATASETS, app
 
 client = TestClient(app)
 
