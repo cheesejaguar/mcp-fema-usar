@@ -491,7 +491,6 @@ class APIGateway:
                 data=await request.read() if request.can_read_body else None,
                 allow_redirects=False,
             ) as backend_response:
-
                 # Read response body
                 body = await backend_response.read()
 

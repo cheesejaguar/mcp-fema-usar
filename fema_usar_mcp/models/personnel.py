@@ -98,9 +98,7 @@ class PersonnelModel(BaseModel):
 
     # Deployment tracking
     deployment_ready: bool = Field(True, description="Ready for deployment")
-    last_deployment: datetime | None = Field(
-        None, description="Last deployment date"
-    )
+    last_deployment: datetime | None = Field(None, description="Last deployment date")
     total_deployments: int = Field(0, description="Total number of deployments")
 
     # Additional metadata

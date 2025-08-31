@@ -1561,7 +1561,7 @@ def format_treatments_for_ics(treatments: list[str]) -> str:
     if not treatments:
         return "No treatments provided"
     return "; ".join(treatments[:5]) + (
-        f" and {len(treatments)-5} more" if len(treatments) > 5 else ""
+        f" and {len(treatments) - 5} more" if len(treatments) > 5 else ""
     )
 
 
@@ -1581,7 +1581,7 @@ def format_medications_for_ics(medications: list[dict[str, Any]]) -> str:
 
     result = "; ".join(med_strings)
     if len(medications) > 3:
-        result += f" and {len(medications)-3} additional medications"
+        result += f" and {len(medications) - 3} additional medications"
 
     return result
 

@@ -89,9 +89,7 @@ class MissionAssignment(BaseModel):
     safety_considerations: list[str] = Field(
         default_factory=list, description="Safety considerations"
     )
-    special_instructions: str | None = Field(
-        None, description="Special instructions"
-    )
+    special_instructions: str | None = Field(None, description="Special instructions")
 
     # Progress tracking
     progress_percent: float = Field(
@@ -108,15 +106,11 @@ class MissionAssignment(BaseModel):
     reporting_frequency_minutes: int = Field(
         30, description="Reporting frequency in minutes"
     )
-    next_report_due: datetime | None = Field(
-        None, description="Next report due time"
-    )
+    next_report_due: datetime | None = Field(None, description="Next report due time")
     communication_plan: str | None = Field(None, description="Communication plan")
 
     # Results and outcomes
-    mission_results: dict[str, Any] | None = Field(
-        None, description="Mission results"
-    )
+    mission_results: dict[str, Any] | None = Field(None, description="Mission results")
     lessons_learned: str | None = Field(None, description="Lessons learned")
     after_action_items: list[str] = Field(
         default_factory=list, description="After action items"
@@ -190,9 +184,7 @@ class SafetyIncident(BaseModel):
     investigation_required: bool = Field(
         False, description="Whether investigation is required"
     )
-    investigation_status: str | None = Field(
-        None, description="Investigation status"
-    )
+    investigation_status: str | None = Field(None, description="Investigation status")
 
     # Prevention and lessons learned
     contributing_factors: list[str] = Field(
@@ -222,9 +214,7 @@ class ResourceUtilization(BaseModel):
 
     # Utilization period
     utilization_start: datetime = Field(..., description="Utilization start time")
-    utilization_end: datetime | None = Field(
-        None, description="Utilization end time"
-    )
+    utilization_end: datetime | None = Field(None, description="Utilization end time")
     total_hours: float | None = Field(None, description="Total hours utilized")
 
     # Assignment details
@@ -233,9 +223,7 @@ class ResourceUtilization(BaseModel):
     utilization_purpose: str = Field(..., description="Purpose of utilization")
 
     # Performance metrics
-    effectiveness_rating: str | None = Field(
-        None, description="Effectiveness rating"
-    )
+    effectiveness_rating: str | None = Field(None, description="Effectiveness rating")
     efficiency_rating: str | None = Field(None, description="Efficiency rating")
     performance_notes: str | None = Field(None, description="Performance notes")
 

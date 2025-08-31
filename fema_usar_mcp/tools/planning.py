@@ -357,7 +357,7 @@ def _track_mission_milestones(mission_type: str) -> dict[str, Any]:
         "total_milestones": len(mission_milestones),
         "milestones": [
             {
-                "milestone_id": f"MS-{i+1:03d}",
+                "milestone_id": f"MS-{i + 1:03d}",
                 "name": ms["name"],
                 "target_time": ms["target_time"].isoformat(),
                 "status": "pending",

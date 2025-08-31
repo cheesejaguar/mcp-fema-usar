@@ -93,9 +93,7 @@ class EquipmentModel(BaseModel):
 
     # Maintenance
     maintenance_records: list[MaintenanceRecord] = Field(default_factory=list)
-    last_inspection: datetime | None = Field(
-        None, description="Last inspection date"
-    )
+    last_inspection: datetime | None = Field(None, description="Last inspection date")
     next_maintenance: datetime | None = Field(
         None, description="Next scheduled maintenance"
     )
@@ -115,9 +113,7 @@ class EquipmentModel(BaseModel):
 
     # Deployment tracking
     total_deployments: int = Field(0, description="Total number of deployments")
-    total_hours_used: float | None = Field(
-        None, description="Total operational hours"
-    )
+    total_hours_used: float | None = Field(None, description="Total operational hours")
     last_deployment_date: datetime | None = Field(
         None, description="Last deployment date"
     )

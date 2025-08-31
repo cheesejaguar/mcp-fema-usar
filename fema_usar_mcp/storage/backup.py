@@ -316,7 +316,9 @@ class DatabaseBackupEngine:
         Returns:
             Backup metadata
         """
-        backup_id = f"full_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{secrets.token_hex(4)}"
+        backup_id = (
+            f"full_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{secrets.token_hex(4)}"
+        )
 
         metadata = BackupMetadata(
             backup_id=backup_id,
@@ -396,7 +398,9 @@ class DatabaseBackupEngine:
         Returns:
             Backup metadata
         """
-        backup_id = f"incr_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{secrets.token_hex(4)}"
+        backup_id = (
+            f"incr_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{secrets.token_hex(4)}"
+        )
 
         metadata = BackupMetadata(
             backup_id=backup_id,
@@ -793,9 +797,7 @@ class BackupScheduler:
 
     async def _cleanup_old_backups(self):
         """Clean up old backups."""
-        cutoff_date = datetime.now(UTC) - timedelta(
-            days=self.config.retention_days
-        )
+        cutoff_date = datetime.now(UTC) - timedelta(days=self.config.retention_days)
 
         expired_backups = [
             backup for backup in self.backup_history if backup.created_at < cutoff_date

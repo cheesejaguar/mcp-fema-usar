@@ -309,37 +309,37 @@ def get_usar_system_status() -> str:
 # FEMA USAR MCP System Status
 
 ## System Information
-- **System**: {status['system']}
-- **Version**: {status['version']}
-- **Status**: {status['status']}
-- **Last Updated**: {status['last_updated']}
+- **System**: {status["system"]}
+- **Version**: {status["version"]}
+- **Status**: {status["status"]}
+- **Last Updated**: {status["last_updated"]}
 
 ## Capabilities
-- **Functional Groups**: {status['capabilities']['functional_groups_supported']} supported
-- **Personnel Positions**: {status['capabilities']['total_positions']} tracked
-- **Equipment Items**: {status['capabilities']['total_equipment']} managed
-- **Task Forces Supported**: {status['capabilities']['supported_task_forces']}
+- **Functional Groups**: {status["capabilities"]["functional_groups_supported"]} supported
+- **Personnel Positions**: {status["capabilities"]["total_positions"]} tracked
+- **Equipment Items**: {status["capabilities"]["total_equipment"]} managed
+- **Task Forces Supported**: {status["capabilities"]["supported_task_forces"]}
 
 ## Tool Availability
-- **Command Tools**: {status['capabilities']['tools']['command_tools']} available
-- **Search Tools**: {status['capabilities']['tools']['search_tools']} available
-- **Rescue Tools**: {status['capabilities']['tools']['rescue_tools']} available
-- **Medical Tools**: {status['capabilities']['tools']['medical_tools']} available
-- **Planning Tools**: {status['capabilities']['tools']['planning_tools']} available
-- **Logistics Tools**: {status['capabilities']['tools']['logistics_tools']} available
-- **Technical Tools**: {status['capabilities']['tools']['technical_tools']} available
+- **Command Tools**: {status["capabilities"]["tools"]["command_tools"]} available
+- **Search Tools**: {status["capabilities"]["tools"]["search_tools"]} available
+- **Rescue Tools**: {status["capabilities"]["tools"]["rescue_tools"]} available
+- **Medical Tools**: {status["capabilities"]["tools"]["medical_tools"]} available
+- **Planning Tools**: {status["capabilities"]["tools"]["planning_tools"]} available
+- **Logistics Tools**: {status["capabilities"]["tools"]["logistics_tools"]} available
+- **Technical Tools**: {status["capabilities"]["tools"]["technical_tools"]} available
 
 ## Integration Status
-- **FEMA IRIS**: {'✅ Connected' if status['capabilities']['integrations']['fema_iris'] else '❌ Disconnected'}
-- **NIMS ICT**: {'✅ Connected' if status['capabilities']['integrations']['nims_ict'] else '❌ Disconnected'}
-- **Federal Asset Tracking**: {'✅ Connected' if status['capabilities']['integrations']['federal_asset_tracking'] else '❌ Disconnected'}
-- **Multi-band Radio**: {'✅ Available' if status['capabilities']['integrations']['multi_band_radio'] else '❌ Unavailable'}
-- **Satellite Communications**: {'✅ Available' if status['capabilities']['integrations']['satellite_comm'] else '❌ Unavailable'}
+- **FEMA IRIS**: {"✅ Connected" if status["capabilities"]["integrations"]["fema_iris"] else "❌ Disconnected"}
+- **NIMS ICT**: {"✅ Connected" if status["capabilities"]["integrations"]["nims_ict"] else "❌ Disconnected"}
+- **Federal Asset Tracking**: {"✅ Connected" if status["capabilities"]["integrations"]["federal_asset_tracking"] else "❌ Disconnected"}
+- **Multi-band Radio**: {"✅ Available" if status["capabilities"]["integrations"]["multi_band_radio"] else "❌ Unavailable"}
+- **Satellite Communications**: {"✅ Available" if status["capabilities"]["integrations"]["satellite_comm"] else "❌ Unavailable"}
 
 ## Operational Metrics
-- **Deployment Time Target**: {status['capabilities']['deployment_time_target']} hours
-- **Self-Sufficiency Duration**: {status['capabilities']['self_sufficiency_hours']} hours
-- **Advanced Features**: {'✅ Available' if status['advanced_integration_available'] else '❌ Limited'}
+- **Deployment Time Target**: {status["capabilities"]["deployment_time_target"]} hours
+- **Self-Sufficiency Duration**: {status["capabilities"]["self_sufficiency_hours"]} hours
+- **Advanced Features**: {"✅ Available" if status["advanced_integration_available"] else "❌ Limited"}
 """
     except Exception as e:
         logger.error(f"System status retrieval error: {str(e)}", exc_info=True)
@@ -382,23 +382,23 @@ def calculate_task_force_readiness(
 # Task Force Deployment Readiness: {task_force_id}
 
 ## Overall Assessment
-- **Overall Readiness**: {readiness['overall_readiness_percent']}%
-- **Deployment Capable**: {'✅ YES' if readiness['deployment_capable'] else '❌ NO'}
-- **Estimated Deployment Time**: {readiness['estimated_deployment_time_hours'] or 'N/A'} hours
+- **Overall Readiness**: {readiness["overall_readiness_percent"]}%
+- **Deployment Capable**: {"✅ YES" if readiness["deployment_capable"] else "❌ NO"}
+- **Estimated Deployment Time**: {readiness["estimated_deployment_time_hours"] or "N/A"} hours
 
 ## Readiness Breakdown
-- **Personnel Readiness**: {readiness['personnel_readiness_percent']}% ({personnel_count}/70 positions)
-- **Equipment Readiness**: {readiness['equipment_readiness_percent']}% ({equipment_ready}/16,400 items)
-- **Training Compliance**: {readiness['training_readiness_percent']}%
+- **Personnel Readiness**: {readiness["personnel_readiness_percent"]}% ({personnel_count}/70 positions)
+- **Equipment Readiness**: {readiness["equipment_readiness_percent"]}% ({equipment_ready}/16,400 items)
+- **Training Compliance**: {readiness["training_readiness_percent"]}%
 
 ## Operational Capability
-- **Self-Sufficiency Duration**: {readiness['self_sufficiency_hours']} hours
-- **Last Calculated**: {readiness['last_calculated']}
-- **Processing Time**: {readiness['processing_time_ms']:.1f}ms
+- **Self-Sufficiency Duration**: {readiness["self_sufficiency_hours"]} hours
+- **Last Calculated**: {readiness["last_calculated"]}
+- **Processing Time**: {readiness["processing_time_ms"]:.1f}ms
 
 ## Recommendations
-{'- Task force ready for immediate deployment' if readiness['deployment_capable'] else '- Address deficiencies before deployment'}
-{'- Maintain current readiness levels' if readiness['overall_readiness_percent'] >= 90 else '- Improve readiness to meet deployment standards'}
+{"- Task force ready for immediate deployment" if readiness["deployment_capable"] else "- Address deficiencies before deployment"}
+{"- Maintain current readiness levels" if readiness["overall_readiness_percent"] >= 90 else "- Improve readiness to meet deployment standards"}
 """
     except Exception as e:
         logger.error(f"Readiness calculation error: {str(e)}", exc_info=True)

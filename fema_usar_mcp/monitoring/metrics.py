@@ -314,9 +314,7 @@ class AlertManager:
             except Exception as e:
                 logger.error(f"Alert rule check failed: {str(e)}")
 
-    def get_active_alerts(
-        self, severity: AlertSeverity | None = None
-    ) -> list[Alert]:
+    def get_active_alerts(self, severity: AlertSeverity | None = None) -> list[Alert]:
         """Get active alerts.
 
         Args:

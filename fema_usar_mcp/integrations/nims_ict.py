@@ -97,9 +97,7 @@ class NIMSResourceOrder(BaseModel):
     priority: str = Field(..., description="Order priority")
     requested_arrival: datetime = Field(..., description="Requested arrival time")
     delivery_location: dict[str, Any] = Field(..., description="Delivery location")
-    special_requirements: str | None = Field(
-        None, description="Special requirements"
-    )
+    special_requirements: str | None = Field(None, description="Special requirements")
     order_status: str = Field("pending", description="Order status")
     estimated_cost: float | None = Field(None, description="Estimated cost")
 

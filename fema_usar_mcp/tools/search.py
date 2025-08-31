@@ -121,7 +121,7 @@ def _perform_ai_victim_analysis(search_data: dict[str, Any]) -> dict[str, Any]:
     victim_detections = []
     for i in range(random.randint(1, 4)):
         detection = {
-            "detection_id": f"AI-DET-{i+1:03d}",
+            "detection_id": f"AI-DET-{i + 1:03d}",
             "predicted_location": {
                 "coordinates": (
                     random.uniform(-50, 50),
@@ -204,7 +204,9 @@ def _perform_ai_victim_analysis(search_data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _optimize_search_patterns_ai(current_patterns: dict[str, Any], use_deterministic: bool = True) -> dict[str, Any]:
+def _optimize_search_patterns_ai(
+    current_patterns: dict[str, Any], use_deterministic: bool = True
+) -> dict[str, Any]:
     """Use AI to optimize search patterns for maximum efficiency."""
     ai_models = _initialize_ai_models()
 
@@ -307,7 +309,7 @@ def _perform_sensor_fusion_analysis(
     # Generate integrated detections
     for i in range(random.randint(1, 4)):
         detection = {
-            "integrated_detection_id": f"FUSION-{i+1:03d}",
+            "integrated_detection_id": f"FUSION-{i + 1:03d}",
             "contributing_sensors": random.sample(
                 ["acoustic", "thermal", "seismic", "chemical"], random.randint(2, 4)
             ),

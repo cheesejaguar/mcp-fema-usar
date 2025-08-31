@@ -203,9 +203,7 @@ class MobileServer:
                     "status": "healthy",
                     "mode": "mobile",
                     "timestamp": datetime.now(UTC).isoformat(),
-                    "uptime": (
-                        datetime.now(UTC) - self.startup_time
-                    ).total_seconds(),
+                    "uptime": (datetime.now(UTC) - self.startup_time).total_seconds(),
                 }
             )
 
@@ -466,9 +464,7 @@ class MobileServer:
             "cache_size_mb": status.cache_size_mb,
             "network_quality": status.network_quality,
             "offline_data_mb": status.offline_data_size_mb,
-            "uptime_seconds": (
-                datetime.now(UTC) - self.startup_time
-            ).total_seconds(),
+            "uptime_seconds": (datetime.now(UTC) - self.startup_time).total_seconds(),
             "system_resources": status.system_resources,
             "timestamp": datetime.now(UTC).isoformat(),
         }

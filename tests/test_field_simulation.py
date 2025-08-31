@@ -594,7 +594,7 @@ class TestStressTestSimulation:
 
         # Deploy multiple task forces
         for i in range(max_task_forces):
-            tf_id = f"TF-{i+1:02d}"
+            tf_id = f"TF-{i + 1:02d}"
             result = task_force_leader_dashboard(tf_id)
             data = json.loads(result)
             all_results.append(data["status"] == "success")
@@ -602,7 +602,7 @@ class TestStressTestSimulation:
 
         # Handle multiple simultaneous incidents
         for i in range(max_incidents):
-            incident_id = f"STRESS-INC-{i+1:02d}"
+            incident_id = f"STRESS-INC-{i + 1:02d}"
 
             # Situation management for each incident
             result = situation_unit_dashboard("all", "real_time", incident_id)
@@ -611,10 +611,10 @@ class TestStressTestSimulation:
 
             # Multiple victims per incident
             for j in range(max_victims_per_incident):
-                victim_id = f"STRESS-VIC-{i+1:02d}-{j+1:03d}"
+                victim_id = f"STRESS-VIC-{i + 1:02d}-{j + 1:03d}"
                 result = patient_care_tracker(
                     victim_id,
-                    f"Victim {j+1}",
+                    f"Victim {j + 1}",
                     30,
                     "male",
                     "yellow",
@@ -622,7 +622,7 @@ class TestStressTestSimulation:
                     {},
                     [],
                     [],
-                    f"Incident {i+1}",
+                    f"Incident {i + 1}",
                     "Hospital",
                 )
                 data = json.loads(result)
