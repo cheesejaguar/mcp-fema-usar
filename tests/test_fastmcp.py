@@ -1,16 +1,16 @@
 """Tests for FastMCP server functionality."""
 
-import pytest
-from unittest.mock import patch
 import json
 
+import pytest
+
+from fema_usar_mcp.core import get_system_status
 from fema_usar_mcp.fastmcp_server import mcp
 from fema_usar_mcp.tools.command import (
-    task_force_leader_dashboard,
-    safety_officer_monitor,
     personnel_accountability,
+    safety_officer_monitor,
+    task_force_leader_dashboard,
 )
-from fema_usar_mcp.core import get_system_status
 
 
 class TestFastMCPServerInitialization:
@@ -34,9 +34,9 @@ class TestFastMCPServerInitialization:
     def test_system_status_tool_exists(self):
         """Test that system status tool is properly registered."""
         # This tool is defined directly in the server
-        assert hasattr(mcp, '_tools')
+        assert hasattr(mcp, "_tools")
         tool_names = [tool.name for tool in mcp._tools.values()]
-        assert 'get_usar_system_status' in tool_names
+        assert "get_usar_system_status" in tool_names
 
 
 class TestCommandTools:
@@ -46,10 +46,10 @@ class TestCommandTools:
     def test_task_force_leader_dashboard_basic(self):
         """Test basic task force leader dashboard functionality."""
         result = task_force_leader_dashboard("TEST-TF1")
-        
+
         assert "Task Force Leader Dashboard" in result
         assert "TEST-TF1" in result
-        
+
         # Parse JSON to verify structure
         result_data = json.loads(result)
         assert "dashboard" in result_data
@@ -60,9 +60,9 @@ class TestCommandTools:
     def test_safety_officer_monitor_real_time(self):
         """Test safety officer monitoring in real-time mode."""
         result = safety_officer_monitor("real_time")
-        
+
         assert "Safety Officer Monitor" in result
-        
+
         # Parse JSON to verify structure
         result_data = json.loads(result)
         assert "monitor" in result_data
@@ -72,9 +72,9 @@ class TestCommandTools:
     def test_personnel_accountability_full(self):
         """Test personnel accountability with full information."""
         result = personnel_accountability("full")
-        
+
         assert "Personnel Accountability" in result
-        
+
         # Parse JSON to verify structure
         result_data = json.loads(result)
         assert "accountability" in result_data
@@ -89,7 +89,7 @@ class TestSystemStatusTool:
     def test_get_system_status(self):
         """Test system status retrieval."""
         status = get_system_status()
-        
+
         assert status["system"] == "FEMA USAR MCP Server"
         assert status["version"] == "0.1.0"
         assert status["status"] == "operational"
@@ -100,7 +100,7 @@ class TestSystemStatusTool:
         """Test that capabilities have expected structure."""
         status = get_system_status()
         capabilities = status["capabilities"]
-        
+
         assert "functional_groups" in capabilities
         assert "total_positions" in capabilities
         assert "total_equipment" in capabilities
@@ -115,9 +115,9 @@ class TestCoreBusinessLogic:
     def test_deployment_readiness_calculation(self, sample_task_force_config):
         """Test deployment readiness calculation."""
         from fema_usar_mcp.core import calculate_deployment_readiness
-        
+
         readiness = calculate_deployment_readiness(sample_task_force_config)
-        
+
         assert "overall_readiness_percent" in readiness
         assert "deployment_capable" in readiness
         assert readiness["deployment_capable"] is True
@@ -126,18 +126,18 @@ class TestCoreBusinessLogic:
     @pytest.mark.unit
     def test_safety_alert_processing(self):
         """Test safety alert processing functionality."""
-        from fema_usar_mcp.core import SafetyAlert, AlertLevel, process_safety_alert
-        
+        from fema_usar_mcp.core import AlertLevel, SafetyAlert, process_safety_alert
+
         alert = SafetyAlert(
             alert_id="TEST-ALERT-001",
             alert_level=AlertLevel.RED,
             alert_type="structural_hazard",
             description="Test structural hazard alert",
-            personnel_affected=["PERS-001", "PERS-002"]
+            personnel_affected=["PERS-001", "PERS-002"],
         )
-        
+
         result = process_safety_alert(alert)
-        
+
         assert result["alert_id"] == "TEST-ALERT-001"
         assert result["immediate_response_required"] is True
         assert result["personnel_count_affected"] == 2
@@ -154,28 +154,28 @@ class TestToolIntegration:
         result = task_force_leader_dashboard(
             task_force_id="",  # Empty string
             include_personnel=True,
-            include_equipment=True
+            include_equipment=True,
         )
-        
+
         # Should still return valid JSON even with empty task_force_id
         result_data = json.loads(result)
         assert "status" in result_data
 
-    @pytest.mark.integration  
+    @pytest.mark.integration
     def test_multiple_tools_coordination(self):
         """Test that multiple tools can work together."""
         # Get personnel accountability
         personnel_result = personnel_accountability("status")
         personnel_data = json.loads(personnel_result)
-        
+
         # Get safety monitoring
         safety_result = safety_officer_monitor("summary")
         safety_data = json.loads(safety_result)
-        
+
         # Both should succeed
         assert personnel_data["status"] == "success"
         assert safety_data["status"] == "success"
-        
+
         # Data should be consistent
         assert personnel_data["data"]["total_personnel"] == 70
         assert safety_data["data"]["personnel_tracked"] == 70
@@ -192,9 +192,9 @@ class TestPerformanceAndScalability:
             "LARGE-TF1",
             include_personnel=True,
             include_equipment=True,
-            include_missions=True
+            include_missions=True,
         )
-        
+
         # Should complete in reasonable time and return valid data
         result_data = json.loads(result)
         assert result_data["status"] == "success"
@@ -203,19 +203,16 @@ class TestPerformanceAndScalability:
     def test_concurrent_tool_calls(self):
         """Test concurrent tool calls don't interfere."""
         import concurrent.futures
-        
+
         def call_dashboard(tf_id):
             return task_force_leader_dashboard(tf_id)
-        
+
         # Execute multiple calls concurrently
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-            futures = [
-                executor.submit(call_dashboard, f"TF-{i}") 
-                for i in range(1, 4)
-            ]
-            
+            futures = [executor.submit(call_dashboard, f"TF-{i}") for i in range(1, 4)]
+
             results = [future.result() for future in futures]
-        
+
         # All calls should succeed
         for result in results:
             result_data = json.loads(result)

@@ -1,10 +1,10 @@
 """FastAPI HTTP interface for FEMA USAR MCP server."""
 
-import os
 import json
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,13 +13,7 @@ from pydantic import BaseModel
 
 from fema_usar_mcp.core import (
     get_system_status,
-    USARTaskForceConfig,
     get_usar_capabilities,
-)
-from fema_usar_mcp.models import (
-    PersonnelModel,
-    EquipmentModel,
-    MissionAssignment,
 )
 
 
@@ -56,7 +50,7 @@ class USARStatusResponse(BaseModel):
     operational_status: str
     personnel_count: int
     equipment_ready: int
-    mission_assignments: List[Dict[str, Any]]
+    mission_assignments: list[dict[str, Any]]
     last_updated: str
 
 
@@ -81,7 +75,9 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8080").split(","),
+    allow_origins=os.getenv(
+        "CORS_ORIGINS", "http://localhost:3000,http://localhost:8080"
+    ).split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -111,7 +107,7 @@ async def health_check():
     return get_system_status()
 
 
-@app.get("/status", response_model=Dict[str, Any])
+@app.get("/status", response_model=dict[str, Any])
 async def get_usar_status():
     """Get comprehensive USAR system status."""
     return {
@@ -130,7 +126,7 @@ async def get_capabilities():
     return {
         "functional_groups": [
             "Command",
-            "Search", 
+            "Search",
             "Rescue",
             "Medical",
             "Planning",
@@ -140,7 +136,7 @@ async def get_capabilities():
         "tools": get_usar_capabilities()["tools"],
         "integrations": [
             "FEMA IRIS",
-            "NIMS ICT", 
+            "NIMS ICT",
             "Federal Asset Tracking",
             "Multi-band Radio Systems",
             "Satellite Communications",
@@ -161,7 +157,7 @@ async def get_task_force_status(request: USARStatusRequest):
         personnel_count=70,
         equipment_ready=16400,
         mission_assignments=[],
-        last_updated="2024-08-31T12:00:00Z"
+        last_updated="2024-08-31T12:00:00Z",
     )
 
 
@@ -169,7 +165,7 @@ async def get_task_force_status(request: USARStatusRequest):
 async def initiate_deployment(
     task_force_id: str,
     deployment_location: str,
-    mission_type: str = "search_and_rescue"
+    mission_type: str = "search_and_rescue",
 ):
     """Initiate task force deployment."""
     return {
@@ -178,13 +174,13 @@ async def initiate_deployment(
         "location": deployment_location,
         "mission_type": mission_type,
         "estimated_departure": "6 hours",
-        "status": "deployment_initiated"
+        "status": "deployment_initiated",
     }
 
 
 # Existing ICS Forms endpoints
-@app.get("/ics_forms", response_model=List[ICSForm])
-def list_forms() -> List[ICSForm]:
+@app.get("/ics_forms", response_model=list[ICSForm])
+def list_forms() -> list[ICSForm]:
     """List available ICS forms."""
     return ICS_FORMS
 
@@ -203,11 +199,15 @@ def get_form_content(form_id: str) -> FileResponse:
     """Retrieve the actual ICS form file."""
     for form in ICS_FORMS:
         if form.id.lower() == form_id.lower():
-            file_path = Path(__file__).parent.parent / "resources" / "forms" / form.filename
+            file_path = (
+                Path(__file__).parent.parent / "resources" / "forms" / form.filename
+            )
             if file_path.exists():
                 return FileResponse(
-                    file_path, 
-                    headers={"Content-Disposition": f"attachment; filename={form.filename}"}
+                    file_path,
+                    headers={
+                        "Content-Disposition": f"attachment; filename={form.filename}"
+                    },
                 )
             else:
                 raise HTTPException(status_code=404, detail="Form file not found")
@@ -215,8 +215,8 @@ def get_form_content(form_id: str) -> FileResponse:
 
 
 # Existing datasets endpoints
-@app.get("/datasets", response_model=List[OpenDataset])
-def list_datasets() -> List[OpenDataset]:
+@app.get("/datasets", response_model=list[OpenDataset])
+def list_datasets() -> list[OpenDataset]:
     """List available open datasets."""
     return OPEN_DATASETS
 
@@ -231,8 +231,8 @@ def get_dataset(dataset_id: str) -> OpenDataset:
 
 
 # Existing documents endpoints
-@app.get("/documents", response_model=List[Document])
-def list_documents() -> List[Document]:
+@app.get("/documents", response_model=list[Document])
+def list_documents() -> list[Document]:
     """List available documents."""
     return DOCUMENTS
 
@@ -251,11 +251,15 @@ def get_document_content(document_id: str) -> FileResponse:
     """Retrieve the actual document file."""
     for doc in DOCUMENTS:
         if doc.id.lower() == document_id.lower():
-            file_path = Path(__file__).parent.parent / "resources" / "documents" / doc.filename
+            file_path = (
+                Path(__file__).parent.parent / "resources" / "documents" / doc.filename
+            )
             if file_path.exists():
                 return FileResponse(
                     file_path,
-                    headers={"Content-Disposition": f"attachment; filename={doc.filename}"}
+                    headers={
+                        "Content-Disposition": f"attachment; filename={doc.filename}"
+                    },
                 )
             else:
                 raise HTTPException(status_code=404, detail="Document file not found")
@@ -265,10 +269,10 @@ def get_document_content(document_id: str) -> FileResponse:
 def run():
     """Run the HTTP server."""
     import uvicorn
-    
+
     host = os.getenv("UVICORN_HOST", "0.0.0.0")
     port = int(os.getenv("UVICORN_PORT", "8000"))
-    
+
     uvicorn.run(
         "app.main:app",
         host=host,

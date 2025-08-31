@@ -10,16 +10,16 @@ __author__ = "FEMA USAR MCP Team"
 __email__ = "usar-mcp@example.com"
 
 from .core import (
-    USARTaskForceConfig,
-    PersonnelPosition,
     EquipmentItem,
     OperationalStatus,
+    PersonnelPosition,
+    USARTaskForceConfig,
     get_system_status,
 )
 
 __all__ = [
     "USARTaskForceConfig",
-    "PersonnelPosition", 
+    "PersonnelPosition",
     "EquipmentItem",
     "OperationalStatus",
     "get_system_status",

@@ -6,30 +6,30 @@ This package contains Pydantic models for FEMA USAR domain entities:
 - Operations models (missions, timelines, safety)
 """
 
-from .personnel import (
-    PersonnelModel,
-    PersonnelQualification,
-    PersonnelLocation,
-    PositionAssignment,
-)
 from .equipment import (
-    EquipmentModel,
-    EquipmentCategory,
-    MaintenanceRecord,
     DeploymentStatus,
+    EquipmentCategory,
+    EquipmentModel,
+    MaintenanceRecord,
 )
 from .operations import (
     MissionAssignment,
     OperationalTimeline,
-    SafetyIncident,
     ResourceUtilization,
+    SafetyIncident,
+)
+from .personnel import (
+    PersonnelLocation,
+    PersonnelModel,
+    PersonnelQualification,
+    PositionAssignment,
 )
 
 __all__ = [
     # Personnel models
     "PersonnelModel",
     "PersonnelQualification",
-    "PersonnelLocation", 
+    "PersonnelLocation",
     "PositionAssignment",
     # Equipment models
     "EquipmentModel",

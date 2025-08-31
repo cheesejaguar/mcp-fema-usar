@@ -12,7 +12,7 @@ class TestHealthAndStatus:
         """Test health check endpoint."""
         response = test_client.get("/health")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert data["system"] == "FEMA USAR MCP Server"
         assert data["status"] == "operational"
@@ -22,7 +22,7 @@ class TestHealthAndStatus:
         """Test status endpoint."""
         response = test_client.get("/status")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert data["system"] == "FEMA USAR MCP Server"
         assert data["tools_available"] == 35
@@ -33,7 +33,7 @@ class TestHealthAndStatus:
         """Test capabilities endpoint."""
         response = test_client.get("/capabilities")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert "functional_groups" in data
         assert "tools" in data
@@ -51,12 +51,12 @@ class TestUSAREndpoints:
         request_data = {
             "task_force_id": "CA-TF1",
             "include_personnel": True,
-            "include_equipment": True
+            "include_equipment": True,
         }
-        
+
         response = test_client.post("/usar/status", json=request_data)
         assert response.status_code == 200
-        
+
         data = response.json()
         assert data["task_force_id"] == "CA-TF1"
         assert data["operational_status"] == "Ready"
@@ -71,11 +71,11 @@ class TestUSAREndpoints:
             params={
                 "task_force_id": "CA-TF1",
                 "deployment_location": "Los Angeles, CA",
-                "mission_type": "search_and_rescue"
-            }
+                "mission_type": "search_and_rescue",
+            },
         )
         assert response.status_code == 200
-        
+
         data = response.json()
         assert "deployment_id" in data
         assert data["task_force_id"] == "CA-TF1"
@@ -91,11 +91,11 @@ class TestICSFormsAPI:
         """Test listing ICS forms."""
         response = test_client.get("/ics_forms")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert isinstance(data, list)
         assert len(data) > 0
-        
+
         # Check form structure
         form = data[0]
         assert "id" in form
@@ -108,7 +108,7 @@ class TestICSFormsAPI:
         """Test getting specific ICS form."""
         response = test_client.get("/ics_forms/ics_201")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert data["id"] == "ics_201"
         assert "name" in data
@@ -129,7 +129,7 @@ class TestDatasetsAPI:
         """Test listing available datasets."""
         response = test_client.get("/datasets")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert isinstance(data, list)
 
@@ -139,12 +139,12 @@ class TestDatasetsAPI:
         # First get the list to find a valid dataset ID
         list_response = test_client.get("/datasets")
         datasets = list_response.json()
-        
+
         if datasets:
             dataset_id = datasets[0]["id"]
             response = test_client.get(f"/datasets/{dataset_id}")
             assert response.status_code == 200
-            
+
             data = response.json()
             assert data["id"] == dataset_id
 
@@ -157,7 +157,7 @@ class TestDocumentsAPI:
         """Test listing available documents."""
         response = test_client.get("/documents")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert isinstance(data, list)
 
@@ -167,12 +167,12 @@ class TestDocumentsAPI:
         # First get the list to find a valid document ID
         list_response = test_client.get("/documents")
         documents = list_response.json()
-        
+
         if documents:
             doc_id = documents[0]["id"]
             response = test_client.get(f"/documents/{doc_id}")
             assert response.status_code == 200
-            
+
             data = response.json()
             assert data["id"] == doc_id
 
@@ -185,7 +185,7 @@ class TestErrorHandling:
         """Test invalid task force status request."""
         # Missing required field
         invalid_request = {"include_personnel": True}
-        
+
         response = test_client.post("/usar/status", json=invalid_request)
         assert response.status_code == 422  # Validation error
 
@@ -195,7 +195,7 @@ class TestErrorHandling:
         response = test_client.post(
             "/usar/status",
             data="invalid json",
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         assert response.status_code == 422
 
@@ -218,15 +218,15 @@ class TestPerformance:
     def test_concurrent_requests(self, test_client: TestClient):
         """Test handling of concurrent requests."""
         import concurrent.futures
-        
+
         def make_request():
             return test_client.get("/health")
-        
+
         # Execute multiple requests concurrently
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             futures = [executor.submit(make_request) for _ in range(10)]
             responses = [future.result() for future in futures]
-        
+
         # All requests should succeed
         for response in responses:
             assert response.status_code == 200

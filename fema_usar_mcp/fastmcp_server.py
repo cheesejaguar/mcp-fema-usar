@@ -2,81 +2,78 @@
 
 import logging
 import sys
-from typing import Dict, Any
 
 from fastmcp import FastMCP
 
 # Import core functionality
 from .core import (
-    get_system_status,
-    get_usar_capabilities,
-    calculate_deployment_readiness,
-    USARTaskForceConfig,
     OperationalStatus,
+    USARTaskForceConfig,
+    calculate_deployment_readiness,
+    get_system_status,
+)
+from .performance import (
+    clear_cache,
+    get_async_task_result,
+    get_async_task_status,
+    get_performance_stats,
+    submit_async_task,
 )
 
 # Import all tool modules - will be implemented in phases
 from .tools.command import (
-    task_force_leader_dashboard,
-    safety_officer_monitor,
-    personnel_accountability,
-    mission_assignment_tracker,
     external_coordination,
-)
-from .tools.search import (
-    victim_location_tracker,
-    search_pattern_planner,
-    technical_search_equipment,
-    canine_team_deployment,
-    void_space_assessment,
-)
-from .tools.rescue import (
-    rescue_squad_operations,
-    victim_extraction_planner,
-    structural_stabilization,
-    heavy_equipment_operations,
-    debris_removal_coordinator,
-)
-from .tools.medical import (
-    patient_care_tracker,
-    medical_supply_inventory,
-    triage_coordinator,
-    health_surveillance,
-    evacuation_coordinator,
-)
-from .tools.planning import (
-    situation_unit_dashboard,
-    resource_unit_tracker,
-    documentation_automation,
-    demobilization_planner,
-    operational_timeline,
-)
-from .tools.logistics import (
-    supply_chain_manager,
-    facilities_coordinator,
-    ground_support_tracker,
-    fuel_management,
-    maintenance_scheduler,
-)
-from .tools.technical import (
-    structural_assessment,
-    hazmat_monitoring,
-    communications_manager,
-    rigging_calculator,
-    environmental_monitor,
+    mission_assignment_tracker,
+    personnel_accountability,
+    safety_officer_monitor,
+    task_force_leader_dashboard,
 )
 from .tools.decision_support import (
-    tactical_decision_support,
-    strategic_planning_advisor,
     operational_intelligence_system,
+    strategic_planning_advisor,
+    tactical_decision_support,
 )
-from .performance import (
-    get_performance_stats,
-    clear_cache,
-    submit_async_task,
-    get_async_task_status,
-    get_async_task_result,
-    performance_optimized_tool,
+from .tools.logistics import (
+    facilities_coordinator,
+    fuel_management,
+    ground_support_tracker,
+    maintenance_scheduler,
+    supply_chain_manager,
+)
+from .tools.medical import (
+    evacuation_coordinator,
+    health_surveillance,
+    medical_supply_inventory,
+    patient_care_tracker,
+    triage_coordinator,
+)
+from .tools.planning import (
+    demobilization_planner,
+    documentation_automation,
+    operational_timeline,
+    resource_unit_tracker,
+    situation_unit_dashboard,
+)
+from .tools.rescue import (
+    debris_removal_coordinator,
+    heavy_equipment_operations,
+    rescue_squad_operations,
+    structural_stabilization,
+    victim_extraction_planner,
+)
+from .tools.search import (
+    canine_team_deployment,
+    search_pattern_planner,
+    technical_search_equipment,
+    victim_location_tracker,
+    void_space_assessment,
+)
+from .tools.technical import (
+    communications_manager,
+    environmental_monitor,
+    hazmat_monitoring,
+    rigging_calculator,
+    structural_assessment,
 )
 
 # Configure logging
@@ -145,152 +142,164 @@ mcp.tool(operational_intelligence_system)
 @mcp.tool()
 def get_system_performance() -> str:
     """Get comprehensive system performance statistics and metrics.
-    
+
     Returns:
         JSON string with performance metrics, cache statistics, and system health
     """
     try:
         stats = get_performance_stats()
         import json
-        return json.dumps({
-            "tool": "System Performance Monitor",
-            "status": "success",
-            "performance_data": stats,
-            "recommendations": [
-                f"Cache hit rate: {stats['cache']['hit_rate']:.1%}",
-                f"Active async tasks: {stats['active_tasks']}",
-                f"Memory usage: {stats['cache']['memory_usage_mb']:.2f} MB"
-            ]
-        }, indent=2)
+
+        return json.dumps(
+            {
+                "tool": "System Performance Monitor",
+                "status": "success",
+                "performance_data": stats,
+                "recommendations": [
+                    f"Cache hit rate: {stats['cache']['hit_rate']:.1%}",
+                    f"Active async tasks: {stats['active_tasks']}",
+                    f"Memory usage: {stats['cache']['memory_usage_mb']:.2f} MB",
+                ],
+            },
+            indent=2,
+        )
     except Exception as e:
         import json
-        return json.dumps({
-            "tool": "System Performance Monitor", 
-            "status": "error",
-            "error": str(e)
-        }, indent=2)
+
+        return json.dumps(
+            {"tool": "System Performance Monitor", "status": "error", "error": str(e)},
+            indent=2,
+        )
 
 
 @mcp.tool()
 def clear_system_cache(pattern: str = "") -> str:
     """Clear system cache entries matching optional pattern.
-    
+
     Args:
         pattern: Optional pattern to match cache keys (empty = clear all)
-        
+
     Returns:
         JSON string with cache clearing results
     """
     try:
         cleared_count = clear_cache(pattern if pattern else None)
         import json
-        return json.dumps({
-            "tool": "Cache Manager",
-            "status": "success",
-            "cleared_entries": cleared_count,
-            "pattern": pattern or "all",
-            "message": f"Cleared {cleared_count} cache entries"
-        }, indent=2)
+
+        return json.dumps(
+            {
+                "tool": "Cache Manager",
+                "status": "success",
+                "cleared_entries": cleared_count,
+                "pattern": pattern or "all",
+                "message": f"Cleared {cleared_count} cache entries",
+            },
+            indent=2,
+        )
     except Exception as e:
         import json
-        return json.dumps({
-            "tool": "Cache Manager",
-            "status": "error", 
-            "error": str(e)
-        }, indent=2)
+
+        return json.dumps(
+            {"tool": "Cache Manager", "status": "error", "error": str(e)}, indent=2
+        )
 
 
 @mcp.tool()
 def submit_async_operation(operation: str, parameters: str = "{}") -> str:
     """Submit operation for asynchronous processing.
-    
+
     Args:
         operation: Name of operation to execute
         parameters: JSON string of operation parameters
-        
+
     Returns:
         JSON string with async task submission details
     """
     try:
         import json
         import uuid
-        
+
         task_id = f"async_{operation}_{uuid.uuid4().hex[:8]}"
         params = json.loads(parameters) if parameters != "{}" else {}
-        
+
         # Placeholder for async operation execution
         def dummy_operation():
             import time
+
             time.sleep(1)  # Simulate work
             return {"operation": operation, "parameters": params, "result": "completed"}
-        
+
         future = submit_async_task(task_id, dummy_operation)
-        
-        return json.dumps({
-            "tool": "Async Task Manager",
-            "status": "submitted",
-            "task_id": task_id,
-            "operation": operation,
-            "message": f"Task {task_id} submitted for async processing"
-        }, indent=2)
+
+        return json.dumps(
+            {
+                "tool": "Async Task Manager",
+                "status": "submitted",
+                "task_id": task_id,
+                "operation": operation,
+                "message": f"Task {task_id} submitted for async processing",
+            },
+            indent=2,
+        )
     except Exception as e:
         import json
-        return json.dumps({
-            "tool": "Async Task Manager",
-            "status": "error",
-            "error": str(e)
-        }, indent=2)
+
+        return json.dumps(
+            {"tool": "Async Task Manager", "status": "error", "error": str(e)}, indent=2
+        )
 
 
 @mcp.tool()
 def get_async_task_info(task_id: str) -> str:
     """Get status and result of asynchronous task.
-    
+
     Args:
         task_id: ID of the async task
-        
+
     Returns:
         JSON string with task status and result if available
     """
     try:
         import json
-        
+
         status = get_async_task_status(task_id)
         if status is None:
-            return json.dumps({
-                "tool": "Async Task Manager",
-                "status": "not_found",
-                "task_id": task_id,
-                "message": "Task not found"
-            }, indent=2)
-        
+            return json.dumps(
+                {
+                    "tool": "Async Task Manager",
+                    "status": "not_found",
+                    "task_id": task_id,
+                    "message": "Task not found",
+                },
+                indent=2,
+            )
+
         result_data = {
-            "tool": "Async Task Manager", 
+            "tool": "Async Task Manager",
             "task_id": task_id,
-            "status": status
+            "status": status,
         }
-        
+
         if status == "completed":
             try:
                 result = get_async_task_result(task_id, timeout=0.1)
                 result_data["result"] = result
             except Exception:
                 result_data["result"] = "Result unavailable"
-        
+
         return json.dumps(result_data, indent=2)
     except Exception as e:
         import json
-        return json.dumps({
-            "tool": "Async Task Manager",
-            "status": "error",
-            "error": str(e)
-        }, indent=2)
+
+        return json.dumps(
+            {"tool": "Async Task Manager", "status": "error", "error": str(e)}, indent=2
+        )
 
 
 @mcp.tool()
 def get_usar_system_status() -> str:
     """Get comprehensive FEMA USAR system status and capabilities.
-    
+
     Returns:
         JSON string with complete system status, capabilities, and operational metrics
     """
@@ -342,16 +351,16 @@ def calculate_task_force_readiness(
     task_force_id: str = "CA-TF1",
     personnel_count: int = 70,
     equipment_ready: int = 16400,
-    training_compliance: float = 100.0
+    training_compliance: float = 100.0,
 ) -> str:
     """Calculate deployment readiness for a USAR task force.
-    
+
     Args:
         task_force_id: Task force identifier (e.g., CA-TF1, TX-TF1)
         personnel_count: Current personnel count (max 70)
         equipment_ready: Equipment items ready for deployment (max 16,400)
         training_compliance: Training compliance percentage (0-100)
-        
+
     Returns:
         JSON string with detailed readiness assessment
     """
@@ -364,11 +373,11 @@ def calculate_task_force_readiness(
             operational_status=OperationalStatus.READY,
             personnel_count=min(personnel_count, 70),
             equipment_ready_count=min(equipment_ready, 16400),
-            training_compliance=max(0.0, min(training_compliance, 100.0))
+            training_compliance=max(0.0, min(training_compliance, 100.0)),
         )
-        
+
         readiness = calculate_deployment_readiness(config)
-        
+
         return f"""
 # Task Force Deployment Readiness: {task_force_id}
 
@@ -399,28 +408,28 @@ def calculate_task_force_readiness(
 @mcp.tool()
 def list_functional_groups() -> str:
     """List all USAR functional groups and their key positions.
-    
+
     Returns:
         Formatted list of functional groups and positions
     """
     try:
         from .core import get_functional_group_positions
-        
+
         groups = get_functional_group_positions()
-        
+
         result = "# FEMA USAR Functional Groups and Positions\n\n"
-        
+
         for group, positions in groups.items():
             result += f"## {group.title()} Group\n"
             for position in positions:
                 result += f"- {position}\n"
             result += "\n"
-        
+
         result += f"**Total Positions**: {sum(len(positions) for positions in groups.values())} key positions\n"
-        result += f"**Total Personnel**: 70 personnel in a Type 1 Task Force\n"
-        
+        result += "**Total Personnel**: 70 personnel in a Type 1 Task Force\n"
+
         return result
-        
+
     except Exception as e:
         logger.error(f"Functional groups listing error: {str(e)}", exc_info=True)
         return f"Error listing functional groups: {str(e)}"
@@ -431,7 +440,9 @@ def run():
     try:
         logger.info("Starting FEMA USAR MCP server...")
         logger.info(f"Server initialized with {len(mcp._tools)} tools registered")
-        logger.info("Functional groups supported: Command, Search, Rescue, Medical, Planning, Logistics, Technical")
+        logger.info(
+            "Functional groups supported: Command, Search, Rescue, Medical, Planning, Logistics, Technical"
+        )
         mcp.run()
     except KeyboardInterrupt:
         logger.info("Server stopped by user")

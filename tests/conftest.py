@@ -1,16 +1,17 @@
 """Test configuration for FEMA USAR MCP Server."""
 
-import pytest
 from datetime import datetime
+
+import pytest
 from fastapi.testclient import TestClient
 
+from app.main import app
 from fema_usar_mcp.core import (
-    USARTaskForceConfig,
+    EquipmentItem,
     OperationalStatus,
     PersonnelPosition,
-    EquipmentItem,
+    USARTaskForceConfig,
 )
-from app.main import app
 
 
 @pytest.fixture
@@ -30,7 +31,7 @@ def sample_task_force_config():
         personnel_count=70,
         equipment_ready_count=16400,
         certifications_current=True,
-        training_compliance=95.0
+        training_compliance=95.0,
     )
 
 
@@ -43,13 +44,13 @@ def sample_personnel_position():
         functional_group="COMMAND",
         required_qualifications=["NIMS_ICS_300", "USAR_Task_Force_Leader"],
         is_critical=True,
-        minimum_experience_years=5
+        minimum_experience_years=5,
     )
 
 
 @pytest.fixture
 def sample_equipment_item():
-    """Sample equipment item for testing.""" 
+    """Sample equipment item for testing."""
     return EquipmentItem(
         equipment_id="EQ-001",
         equipment_name="Delsar Seismic Listening Device",
@@ -58,7 +59,7 @@ def sample_equipment_item():
         status="operational",
         deployment_ready=True,
         last_inspection=datetime(2024, 8, 1, 12, 0, 0),
-        next_maintenance=datetime(2024, 12, 1, 12, 0, 0)
+        next_maintenance=datetime(2024, 12, 1, 12, 0, 0),
     )
 
 
@@ -67,13 +68,13 @@ def mock_advanced_library(monkeypatch):
     """Mock advanced library dependencies for testing."""
     import sys
     from unittest.mock import MagicMock
-    
+
     # Mock numpy if not available
-    if 'numpy' not in sys.modules:
-        sys.modules['numpy'] = MagicMock()
-    
-    # Mock pandas if not available  
-    if 'pandas' not in sys.modules:
-        sys.modules['pandas'] = MagicMock()
-        
+    if "numpy" not in sys.modules:
+        sys.modules["numpy"] = MagicMock()
+
+    # Mock pandas if not available
+    if "pandas" not in sys.modules:
+        sys.modules["pandas"] = MagicMock()
+
     return True
