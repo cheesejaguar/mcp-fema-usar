@@ -13,6 +13,33 @@ from fema_usar_mcp.core import (
     USARTaskForceConfig,
 )
 
+# Mark all tests in this module as async-compatible
+pytestmark = pytest.mark.asyncio
+
+
+@pytest.fixture
+def mcp_server():
+    """Get the FastMCP server instance for testing."""
+    from fema_usar_mcp.fastmcp_server import mcp
+
+    return mcp
+
+
+@pytest.fixture
+def latent_mcp_server():
+    """Get the latent FastMCP server instance for testing."""
+    from fema_usar_mcp.fastmcp_server_latent import mcp
+
+    return mcp
+
+
+@pytest.fixture
+def tool_registry():
+    """Get the initialized tool registry for testing."""
+    from fema_usar_mcp.tool_registry import initialize_registry
+
+    return initialize_registry()
+
 
 @pytest.fixture
 def test_client():

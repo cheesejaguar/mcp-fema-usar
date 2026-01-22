@@ -315,7 +315,7 @@ def get_usar_system_status() -> str:
 - **Last Updated**: {status["last_updated"]}
 
 ## Capabilities
-- **Functional Groups**: {status["capabilities"]["functional_groups_supported"]} supported
+- **Functional Groups**: {status["functional_groups_supported"]} supported
 - **Personnel Positions**: {status["capabilities"]["total_positions"]} tracked
 - **Equipment Items**: {status["capabilities"]["total_equipment"]} managed
 - **Task Forces Supported**: {status["capabilities"]["supported_task_forces"]}
@@ -433,6 +433,308 @@ def list_functional_groups() -> str:
     except Exception as e:
         logger.error(f"Functional groups listing error: {str(e)}", exc_info=True)
         return f"Error listing functional groups: {str(e)}"
+
+
+# Meta-tools for latent loading discovery
+@mcp.tool()
+def usar_browse_categories() -> str:
+    """Browse available USAR tool categories with descriptions.
+
+    Use this tool to discover what types of USAR tools are available
+    before loading specific tool schemas.
+
+    Returns:
+        JSON string with category list, tool counts, and descriptions
+    """
+    try:
+        import json
+
+        from .tool_registry import initialize_registry
+
+        registry = initialize_registry()
+        categories = registry.get_categories()
+
+        return json.dumps(
+            {
+                "tool": "USAR Category Browser",
+                "status": "success",
+                "total_tools": sum(cat["count"] for cat in categories.values()),
+                "categories": categories,
+                "usage_hint": "Use usar_list_tools(category) to see tools in a specific category",
+            },
+            indent=2,
+        )
+    except Exception as e:
+        logger.error(f"Category browse error: {str(e)}", exc_info=True)
+        import json
+
+        return json.dumps(
+            {"tool": "USAR Category Browser", "status": "error", "error": str(e)},
+            indent=2,
+        )
+
+
+@mcp.tool()
+def usar_list_tools(category: str = "all", include_parameters: bool = False) -> str:
+    """List USAR tools in a category with optional parameter preview.
+
+    Args:
+        category: Category to filter by (command, search, rescue, medical,
+                  planning, logistics, technical, decision_support, system, or "all")
+        include_parameters: Include key parameters in the output
+
+    Returns:
+        JSON string with tool list and descriptions
+    """
+    try:
+        import json
+
+        from .tool_registry import initialize_registry
+
+        registry = initialize_registry()
+        tools = registry.list_tools(
+            category=category, include_parameters=include_parameters
+        )
+
+        return json.dumps(
+            {
+                "tool": "USAR Tool Lister",
+                "status": "success",
+                "category_filter": category,
+                "tool_count": len(tools),
+                "tools": tools,
+                "usage_hint": "Use usar_get_tool_schema(tool_name) to get full schema for a tool",
+            },
+            indent=2,
+        )
+    except Exception as e:
+        logger.error(f"Tool list error: {str(e)}", exc_info=True)
+        import json
+
+        return json.dumps(
+            {"tool": "USAR Tool Lister", "status": "error", "error": str(e)}, indent=2
+        )
+
+
+@mcp.tool()
+def usar_get_tool_schema(tool_name: str) -> str:
+    """Load and return the full schema for a specific USAR tool.
+
+    This dynamically imports the tool and extracts its full parameter schema.
+
+    Args:
+        tool_name: Name of the tool to get schema for
+
+    Returns:
+        JSON string with full tool schema including all parameters
+    """
+    try:
+        import json
+
+        from .tool_registry import initialize_registry
+
+        registry = initialize_registry()
+        schema = registry.load_tool_schema(tool_name)
+
+        if schema is None:
+            return json.dumps(
+                {
+                    "tool": "USAR Schema Loader",
+                    "status": "error",
+                    "error": f"Tool '{tool_name}' not found",
+                    "available_tools": [
+                        m.name for m in registry.get_all_metadata().values()
+                    ],
+                },
+                indent=2,
+            )
+
+        return json.dumps(
+            {
+                "tool": "USAR Schema Loader",
+                "status": "success",
+                "schema": schema,
+                "usage_hint": f"Tool '{tool_name}' is now ready to use directly or via usar_execute_tool",
+            },
+            indent=2,
+        )
+    except Exception as e:
+        logger.error(f"Schema load error: {str(e)}", exc_info=True)
+        import json
+
+        return json.dumps(
+            {"tool": "USAR Schema Loader", "status": "error", "error": str(e)}, indent=2
+        )
+
+
+@mcp.tool()
+def usar_execute_tool(tool_name: str, parameters: str = "{}") -> str:
+    """Execute any USAR tool by name with JSON parameters.
+
+    This is a meta-tool that can execute any registered USAR tool
+    without needing to load it as a separate MCP tool.
+
+    Args:
+        tool_name: Name of the tool to execute
+        parameters: JSON string of parameters to pass to the tool
+
+    Returns:
+        Tool execution result as JSON string
+    """
+    try:
+        import json
+
+        from .tool_registry import initialize_registry
+
+        registry = initialize_registry()
+
+        # Parse parameters
+        try:
+            params = json.loads(parameters) if parameters != "{}" else {}
+        except json.JSONDecodeError as e:
+            return json.dumps(
+                {
+                    "tool": "USAR Tool Executor",
+                    "status": "error",
+                    "error": f"Invalid JSON parameters: {str(e)}",
+                    "parameters_received": parameters,
+                },
+                indent=2,
+            )
+
+        # Execute the tool
+        result = registry.execute_tool(tool_name, params)
+        return result
+
+    except Exception as e:
+        logger.error(f"Tool execution error: {str(e)}", exc_info=True)
+        import json
+
+        return json.dumps(
+            {"tool": "USAR Tool Executor", "status": "error", "error": str(e)}, indent=2
+        )
+
+
+@mcp.tool()
+def usar_health_check() -> str:
+    """System health and readiness check.
+
+    Returns comprehensive health status including:
+    - Tool registry status
+    - Cache statistics
+    - Performance metrics
+    - System readiness
+
+    Returns:
+        JSON string with health check results
+    """
+    try:
+        import json
+        from datetime import datetime
+
+        from .tool_registry import get_registry
+
+        # Get registry stats
+        registry = get_registry()
+        registry_stats = registry.get_stats()
+
+        # Get performance stats
+        perf_stats = get_performance_stats()
+
+        health_data = {
+            "tool": "USAR Health Check",
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "registry": {
+                "total_tools": registry_stats["total_tools_registered"],
+                "tools_loaded": registry_stats["tools_loaded"],
+                "schemas_cached": registry_stats["schemas_cached"],
+                "cache_hit_rate": f"{registry_stats['cache_hit_rate']:.1%}",
+            },
+            "performance": {
+                "cache_size": perf_stats["cache"]["cache_size"],
+                "cache_hit_rate": f"{perf_stats['cache']['hit_rate']:.1%}",
+                "active_tasks": perf_stats["active_tasks"],
+                "memory_usage_mb": f"{perf_stats['cache']['memory_usage_mb']:.2f}",
+            },
+            "system_ready": True,
+            "functional_groups_available": list(registry_stats["categories"].keys()),
+        }
+
+        return json.dumps(health_data, indent=2)
+
+    except Exception as e:
+        logger.error(f"Health check error: {str(e)}", exc_info=True)
+        import json
+
+        return json.dumps(
+            {
+                "tool": "USAR Health Check",
+                "status": "unhealthy",
+                "error": str(e),
+                "system_ready": False,
+            },
+            indent=2,
+        )
+
+
+@mcp.tool()
+def usar_metrics() -> str:
+    """Get detailed performance metrics and cache statistics.
+
+    Returns:
+        JSON string with comprehensive metrics
+    """
+    try:
+        import json
+        from datetime import datetime
+
+        from .tool_registry import get_registry
+
+        # Get all stats
+        registry = get_registry()
+        registry_stats = registry.get_stats()
+        perf_stats = get_performance_stats()
+
+        metrics_data = {
+            "tool": "USAR Metrics",
+            "status": "success",
+            "timestamp": datetime.now().isoformat(),
+            "tool_registry": {
+                "total_registered": registry_stats["total_tools_registered"],
+                "dynamically_loaded": registry_stats["tools_loaded"],
+                "schemas_cached": registry_stats["schemas_cached"],
+                "load_operations": registry_stats["load_count"],
+                "cache_hits": registry_stats["cache_hits"],
+                "cache_misses": registry_stats["cache_misses"],
+                "cache_hit_rate": registry_stats["cache_hit_rate"],
+                "tools_by_category": registry_stats["categories"],
+            },
+            "performance_cache": {
+                "size": perf_stats["cache"]["cache_size"],
+                "max_size": perf_stats["cache"]["max_size"],
+                "hits": perf_stats["cache"]["hits"],
+                "misses": perf_stats["cache"]["misses"],
+                "evictions": perf_stats["cache"]["evictions"],
+                "hit_rate": perf_stats["cache"]["hit_rate"],
+                "memory_mb": perf_stats["cache"]["memory_usage_mb"],
+            },
+            "async_tasks": {
+                "active": perf_stats["active_tasks"],
+            },
+            "counters": perf_stats.get("counters", {}),
+            "metrics": perf_stats.get("metrics", {}),
+        }
+
+        return json.dumps(metrics_data, indent=2)
+
+    except Exception as e:
+        logger.error(f"Metrics error: {str(e)}", exc_info=True)
+        import json
+
+        return json.dumps(
+            {"tool": "USAR Metrics", "status": "error", "error": str(e)}, indent=2
+        )
 
 
 def run():

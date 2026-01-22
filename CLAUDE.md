@@ -6,15 +6,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Running the Application
 ```bash
-# Start the FastMCP server (primary interface)
+# Start the FastMCP server (primary interface - eager loading)
 python -m fema_usar_mcp.fastmcp_server
 # or
 fema-usar-mcp
+
+# Start with latent loading (96% token reduction)
+python -m fema_usar_mcp.fastmcp_server_latent
+# or
+fema-usar-mcp-latent
+# or with environment variable
+USAR_MCP_LATENT_LOADING=true fema-usar-mcp
 
 # Start the HTTP API server (optional)
 python -m app.main
 # or
 fema-usar-http
+```
+
+### Server Modes
+
+**Eager Loading** (default): All 38+ tools loaded at startup (~122,800 tokens)
+- Best for: Development, testing, high-throughput scenarios
+- Entry point: `fema-usar-mcp`
+
+**Latent Loading** (recommended for LLM clients): Only meta-tools loaded (~5,200 tokens, 96% reduction)
+- Best for: LLM integrations, production deployments
+- Entry point: `fema-usar-mcp-latent`
+- Tools loaded on-demand via `usar_execute_tool`
+
+### Security and Audit
+```bash
+# Enable RBAC security
+USAR_SECURITY_ENABLED=true fema-usar-mcp
+
+# Enable file-based audit logging
+USAR_AUDIT_FILE_LOGGING=true fema-usar-mcp
+USAR_AUDIT_LOG_FILE=/var/log/usar_audit.jsonl fema-usar-mcp
 ```
 
 ### Testing
@@ -63,10 +91,23 @@ This is a **Federal Urban Search and Rescue (USAR) Model Context Protocol (MCP) 
 ### Key Architectural Components
 
 **FastMCP Server (`fema_usar_mcp/fastmcp_server.py`)**
-- Primary MCP interface with 35+ registered tools
+- Primary MCP interface with 38+ registered tools
 - Handles tool registration for all functional groups
 - Provides performance monitoring and async task management
 - Entry point: `fema-usar-mcp` command
+- Includes meta-tools for tool discovery and dynamic execution
+
+**Latent FastMCP Server (`fema_usar_mcp/fastmcp_server_latent.py`)**
+- Lightweight server mode with only meta-tools exposed
+- 96% reduction in initial token consumption
+- Tools loaded on-demand via registry
+- Entry point: `fema-usar-mcp-latent` command
+
+**Tool Registry (`fema_usar_mcp/tool_registry.py`)**
+- Lightweight metadata storage for all tools
+- Dynamic import and schema extraction on demand
+- Schema caching with configurable TTL
+- Enables latent loading pattern
 
 **HTTP API Server (`app/main.py`)**
 - Optional FastAPI-based REST interface
@@ -111,6 +152,15 @@ Each tool module contains 5-8 specialized functions that return JSON-formatted o
 - Authentication and authorization systems
 - FISMA compliance auditing
 - Privacy and data protection controls
+
+**Middleware** (`fema_usar_mcp/middleware/`):
+- `auth_middleware.py`: RBAC permission checking, role-based access control
+- `audit_middleware.py`: Tool invocation logging, sensitive data sanitization
+
+**Async Performance** (`fema_usar_mcp/async_performance.py`):
+- Native asyncio cache implementation
+- Async task management
+- Rate limiting and retry decorators
 
 ### Static Resources
 

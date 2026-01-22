@@ -73,6 +73,7 @@ integration = [
 
 [project.scripts]
 fema-usar-mcp = "fema_usar_mcp.fastmcp_server:run"
+fema-usar-mcp-latent = "fema_usar_mcp.fastmcp_server_latent:run"
 fema-usar-http = "app.main:run"
 
 [project.urls]
@@ -128,6 +129,8 @@ no_implicit_reexport = true
 minversion = "6.0"
 addopts = "-ra -q --strict-markers --strict-config"
 testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",

@@ -5,9 +5,15 @@ import logging
 from datetime import datetime
 from typing import Literal
 
+from ..middleware import audited_tool, secured_tool
+from ..performance import performance_optimized_tool
+
 logger = logging.getLogger(__name__)
 
 
+@performance_optimized_tool(cache_ttl=120, enable_monitoring=True)
+@audited_tool
+@secured_tool
 def task_force_leader_dashboard(
     task_force_id: str = "CA-TF1",
     include_personnel: bool = True,
@@ -98,6 +104,9 @@ def task_force_leader_dashboard(
         return f"Dashboard error: {str(e)}"
 
 
+@performance_optimized_tool(cache_ttl=60, enable_monitoring=True)
+@audited_tool
+@secured_tool
 def safety_officer_monitor(
     monitoring_mode: Literal["real_time", "summary", "alerts_only"] = "real_time",
     location_filter: str = None,
@@ -185,6 +194,9 @@ def safety_officer_monitor(
         return f"Safety monitoring error: {str(e)}"
 
 
+@performance_optimized_tool(cache_ttl=60, enable_monitoring=True)
+@audited_tool
+@secured_tool
 def personnel_accountability(
     accountability_type: Literal["location", "status", "assignments", "full"] = "full",
     functional_group: str = None,
@@ -273,6 +285,9 @@ def personnel_accountability(
         return f"Personnel accountability error: {str(e)}"
 
 
+@performance_optimized_tool(cache_ttl=60, enable_monitoring=True)
+@audited_tool
+@secured_tool
 def mission_assignment_tracker(
     mission_status: Literal["all", "active", "completed", "pending"] = "all",
     priority_filter: Literal["low", "medium", "high", "critical"] = None,
@@ -338,6 +353,9 @@ def mission_assignment_tracker(
         return f"Mission tracking error: {str(e)}"
 
 
+@performance_optimized_tool(cache_ttl=300, enable_monitoring=True)
+@audited_tool
+@secured_tool
 def external_coordination(
     coordination_type: Literal[
         "incident_command", "mutual_aid", "federal_agencies", "all"
