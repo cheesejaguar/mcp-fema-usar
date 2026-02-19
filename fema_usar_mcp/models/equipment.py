@@ -1,12 +1,12 @@
 """Equipment models for FEMA USAR operations."""
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class EquipmentStatus(str, Enum):
+class EquipmentStatus(StrEnum):
     """Equipment operational status."""
 
     OPERATIONAL = "operational"
@@ -16,7 +16,7 @@ class EquipmentStatus(str, Enum):
     UNAVAILABLE = "unavailable"
 
 
-class EquipmentCategory(str, Enum):
+class EquipmentCategory(StrEnum):
     """Equipment categories for USAR operations."""
 
     SEARCH = "search"
@@ -30,7 +30,7 @@ class EquipmentCategory(str, Enum):
     HAZMAT = "hazmat"
 
 
-class DeploymentStatus(str, Enum):
+class DeploymentStatus(StrEnum):
     """Equipment deployment status."""
 
     AVAILABLE = "available"

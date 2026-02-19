@@ -13,9 +13,6 @@ from fema_usar_mcp.core import (
     USARTaskForceConfig,
 )
 
-# Mark all tests in this module as async-compatible
-pytestmark = pytest.mark.asyncio
-
 
 @pytest.fixture
 def mcp_server():

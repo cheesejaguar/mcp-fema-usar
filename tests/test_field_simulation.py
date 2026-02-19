@@ -13,7 +13,7 @@ from fema_usar_mcp.tools.command import (
     safety_officer_monitor,
     task_force_leader_dashboard,
 )
-from fema_usar_mcp.tools.logistics import supply_chain_manager
+from fema_usar_mcp.tools.logistics import maintenance_scheduler, supply_chain_manager
 from fema_usar_mcp.tools.medical import patient_care_tracker, triage_coordinator
 from fema_usar_mcp.tools.planning import operational_timeline, situation_unit_dashboard
 from fema_usar_mcp.tools.rescue import (
@@ -29,7 +29,6 @@ from fema_usar_mcp.tools.technical import (
     communications_manager,
     environmental_monitor,
     hazmat_monitoring,
-    maintenance_scheduler,
     structural_assessment,
 )
 

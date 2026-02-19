@@ -4,14 +4,15 @@ A comprehensive Model Context Protocol (MCP) server providing specialized digita
 
 ## 🚀 Features
 
-### **35+ Specialized Tools** organized by functional groups:
-- **Command Tools**: Task Force Leader dashboard, Safety Officer monitoring, Personnel accountability
-- **Search Tools**: Victim tracking, Technical search equipment, Canine team deployment
-- **Rescue Tools**: Squad operations, Victim extraction planning, Heavy equipment operations
-- **Medical Tools**: Patient care tracking, Medical supply inventory, Triage coordination
-- **Planning Tools**: Situational awareness (SITL), Resource tracking (RESL), Documentation automation
-- **Logistics Tools**: Supply chain management, Facilities coordination, Ground support tracking
-- **Technical Specialist Tools**: Structural assessment, Hazmat monitoring, Communications management
+### **38+ Specialized Tools** organized by functional groups:
+- **Command Tools**: Task Force Leader dashboard, Safety Officer monitoring, Personnel accountability, Mission tracking, External coordination
+- **Search Tools**: Victim tracking, Technical search equipment, Canine team deployment, Search patterns, Void space assessment
+- **Rescue Tools**: Squad operations, Victim extraction planning, Heavy equipment operations, Structural stabilization, Debris removal
+- **Medical Tools**: Patient care tracking, Medical supply inventory, Triage coordination, Health surveillance, Evacuation coordination
+- **Planning Tools**: Situational awareness (SITL), Resource tracking (RESL), Documentation automation, Demobilization planning, Operational timeline
+- **Logistics Tools**: Supply chain management, Facilities coordination, Ground support tracking, Fuel management, Maintenance scheduling
+- **Technical Specialist Tools**: Structural assessment, Hazmat monitoring, Communications management, Rigging calculations, Environmental monitoring
+- **Decision Support Tools**: Tactical decision support, Strategic planning advisor, Operational intelligence
 
 ### **Federal Integration**
 - Federal IRIS (Incident Resource Inventory System) integration
@@ -172,43 +173,72 @@ pytest -m slow
 fema-usar-mcp/
 ├── pyproject.toml              # Project configuration and dependencies
 ├── README.md                   # This file
+├── PRD.md                      # Product Requirements Document
+├── STANDARD.md                 # FastMCP Development Standard
+├── CONTRIBUTING.md             # Contribution guidelines
 ├── LICENSE                     # MIT license
+├── Dockerfile                  # Docker configuration
+├── fly.toml                    # Fly.io deployment config
 │
 ├── fema_usar_mcp/             # Main package
 │   ├── __init__.py            # Package initialization
-│   ├── fastmcp_server.py      # FastMCP server implementation
+│   ├── fastmcp_server.py      # FastMCP server (eager loading)
+│   ├── fastmcp_server_latent.py # FastMCP server (latent loading)
 │   ├── core.py                # Core business logic and models
+│   ├── constants.py           # Domain constants
+│   ├── tool_registry.py       # Dynamic tool registry
+│   ├── tool_metadata.py       # Tool metadata definitions
+│   ├── performance.py         # Caching and performance
+│   ├── async_performance.py   # Async task management
 │   │
-│   ├── tools/                 # MCP tools organized by function
-│   │   ├── command.py         # Command group tools
-│   │   ├── search.py          # Search team tools
-│   │   ├── rescue.py          # Rescue team tools
-│   │   ├── medical.py         # Medical team tools
-│   │   ├── planning.py        # Planning section tools
-│   │   ├── logistics.py       # Logistics section tools
-│   │   └── technical.py       # Technical specialist tools
+│   ├── tools/                 # MCP tools organized by function (38 tools)
+│   │   ├── command.py         # Command group tools (5)
+│   │   ├── search.py          # Search team tools (5)
+│   │   ├── rescue.py          # Rescue team tools (5)
+│   │   ├── medical.py         # Medical team tools (5)
+│   │   ├── planning.py        # Planning section tools (5)
+│   │   ├── logistics.py       # Logistics section tools (5)
+│   │   ├── technical.py       # Technical specialist tools (5)
+│   │   └── decision_support.py # Decision support tools (3)
 │   │
 │   ├── models/                # Pydantic data models
 │   │   ├── personnel.py       # Personnel and position models
 │   │   ├── equipment.py       # Equipment and inventory models
 │   │   └── operations.py      # Mission and operation models
 │   │
-│   └── integrations/          # External system integrations
-│       ├── fema_systems.py    # Federal IRIS, NIMS ICT integration
-│       ├── equipment.py       # Equipment tracking systems
-│       └── communications.py  # Communication system interfaces
+│   ├── integrations/          # External system integrations
+│   │   ├── fema_iris.py       # Federal IRIS integration
+│   │   ├── nims_ict.py        # NIMS ICT protocol
+│   │   ├── fema_systems.py    # General FEMA systems
+│   │   ├── equipment.py       # Equipment tracking systems
+│   │   └── communications.py  # Communication system interfaces
+│   │
+│   ├── middleware/            # Request/response middleware
+│   │   ├── auth_middleware.py # RBAC permission checking
+│   │   └── audit_middleware.py # Audit logging
+│   │
+│   ├── security/              # Authentication
+│   │   └── auth.py           # PIV card and auth systems
+│   │
+│   └── compliance/            # Compliance auditing
+│       └── audit.py          # FISMA compliance
 │
 ├── app/                       # Optional HTTP API
 │   ├── __init__.py
 │   └── main.py               # FastAPI application
 │
 ├── tests/                     # Comprehensive test suite
-│   ├── conftest.py           # Test configuration
+│   ├── conftest.py           # Test configuration and fixtures
 │   ├── test_fastmcp.py       # FastMCP server tests
-│   └── test_http_api.py      # HTTP API tests
+│   ├── test_http_api.py      # HTTP API tests
+│   ├── test_integration.py   # Integration tests
+│   ├── test_mcp_protocol.py  # MCP protocol compliance
+│   ├── test_server.py        # Server functionality
+│   └── test_field_simulation.py # Field operation scenarios
 │
 ├── resources/                 # Static resources
 │   ├── ics_forms.json        # ICS form catalog
+│   ├── open_datasets.json    # Dataset catalog
 │   ├── documents.json        # Document catalog
 │   ├── forms/                # ICS form files
 │   └── documents/            # Reference documents

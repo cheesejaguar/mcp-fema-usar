@@ -83,16 +83,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load existing data files
-DATA_PATH = Path(__file__).parent.parent / "resources" / "ics_forms.json"
-with DATA_PATH.open() as f:
-    ICS_FORMS = [ICSForm(**item) for item in json.load(f)]
+# Load existing data files with graceful fallbacks
+_RESOURCES_DIR = Path(__file__).parent.parent / "resources"
 
-DATASET_PATH = Path(__file__).parent.parent / "resources" / "open_datasets.json"
-with DATASET_PATH.open() as f:
-    OPEN_DATASETS = [OpenDataset(**item) for item in json.load(f)]
+DATA_PATH = _RESOURCES_DIR / "ics_forms.json"
+if DATA_PATH.exists():
+    with DATA_PATH.open() as f:
+        ICS_FORMS = [ICSForm(**item) for item in json.load(f)]
+else:
+    ICS_FORMS = []
 
-DOCUMENTS_PATH = Path(__file__).parent.parent / "resources" / "documents.json"
+DATASET_PATH = _RESOURCES_DIR / "open_datasets.json"
+if DATASET_PATH.exists():
+    with DATASET_PATH.open() as f:
+        OPEN_DATASETS = [OpenDataset(**item) for item in json.load(f)]
+else:
+    OPEN_DATASETS = []
+
+DOCUMENTS_PATH = _RESOURCES_DIR / "documents.json"
 if DOCUMENTS_PATH.exists():
     with DOCUMENTS_PATH.open() as f:
         DOCUMENTS = [Document(**item) for item in json.load(f)]
@@ -116,7 +124,7 @@ async def get_usar_status():
         "status": "operational",
         "capabilities": get_usar_capabilities(),
         "task_forces_supported": 28,
-        "tools_available": 35,
+        "tools_available": 38,
     }
 
 

@@ -8,38 +8,44 @@ import json
 
 import pytest
 
-pytestmark = pytest.mark.asyncio
-
 
 class TestToolDiscovery:
     """Test MCP tool discovery and listing."""
 
     @pytest.mark.unit
-    async def test_eager_server_has_minimum_tools(self, mcp_server):
-        """Verify eager server has at least 35 tools registered."""
-        tools = await mcp_server.get_tools()
-        assert len(tools) >= 35, f"Expected at least 35 tools, found {len(tools)}"
+    def test_eager_server_has_minimum_tools(self, mcp_server):
+        """Verify eager server has at least 38 tools registered."""
+        import asyncio
+
+        tools = asyncio.get_event_loop().run_until_complete(mcp_server.list_tools())
+        assert len(tools) >= 38, f"Expected at least 38 tools, found {len(tools)}"
 
     @pytest.mark.unit
-    async def test_latent_server_has_meta_tools_only(self, latent_mcp_server):
+    def test_latent_server_has_meta_tools_only(self, latent_mcp_server):
         """Verify latent server exposes only meta-tools."""
-        tools = await latent_mcp_server.get_tools()
+        import asyncio
+
+        tools = asyncio.get_event_loop().run_until_complete(
+            latent_mcp_server.list_tools()
+        )
         # Latent server should have only meta-tools (6)
         assert len(tools) <= 10, (
             f"Expected fewer tools for latent mode, found {len(tools)}"
         )
 
         # Should have the core meta-tools
-        tool_names = list(tools.keys())
+        tool_names = [t.name for t in tools]
         assert "usar_browse_categories" in tool_names
         assert "usar_list_tools" in tool_names
         assert "usar_execute_tool" in tool_names
 
     @pytest.mark.unit
-    async def test_command_tools_registered(self, mcp_server):
+    def test_command_tools_registered(self, mcp_server):
         """Verify Command Group tools are registered."""
-        tools = await mcp_server.get_tools()
-        tool_names = list(tools.keys())
+        import asyncio
+
+        tools = asyncio.get_event_loop().run_until_complete(mcp_server.list_tools())
+        tool_names = [t.name for t in tools]
 
         command_tools = [
             "task_force_leader_dashboard",
@@ -53,10 +59,12 @@ class TestToolDiscovery:
             assert tool_name in tool_names, f"Missing command tool: {tool_name}"
 
     @pytest.mark.unit
-    async def test_search_tools_registered(self, mcp_server):
+    def test_search_tools_registered(self, mcp_server):
         """Verify Search Group tools are registered."""
-        tools = await mcp_server.get_tools()
-        tool_names = list(tools.keys())
+        import asyncio
+
+        tools = asyncio.get_event_loop().run_until_complete(mcp_server.list_tools())
+        tool_names = [t.name for t in tools]
 
         search_tools = [
             "victim_location_tracker",
@@ -70,10 +78,12 @@ class TestToolDiscovery:
             assert tool_name in tool_names, f"Missing search tool: {tool_name}"
 
     @pytest.mark.unit
-    async def test_rescue_tools_registered(self, mcp_server):
+    def test_rescue_tools_registered(self, mcp_server):
         """Verify Rescue Group tools are registered."""
-        tools = await mcp_server.get_tools()
-        tool_names = list(tools.keys())
+        import asyncio
+
+        tools = asyncio.get_event_loop().run_until_complete(mcp_server.list_tools())
+        tool_names = [t.name for t in tools]
 
         rescue_tools = [
             "rescue_squad_operations",
@@ -87,10 +97,12 @@ class TestToolDiscovery:
             assert tool_name in tool_names, f"Missing rescue tool: {tool_name}"
 
     @pytest.mark.unit
-    async def test_medical_tools_registered(self, mcp_server):
+    def test_medical_tools_registered(self, mcp_server):
         """Verify Medical Group tools are registered."""
-        tools = await mcp_server.get_tools()
-        tool_names = list(tools.keys())
+        import asyncio
+
+        tools = asyncio.get_event_loop().run_until_complete(mcp_server.list_tools())
+        tool_names = [t.name for t in tools]
 
         medical_tools = [
             "patient_care_tracker",
@@ -227,7 +239,7 @@ class TestMetaTools:
         categories = tool_registry.get_categories()
 
         assert len(categories) >= 8
-        for cat_name, cat_info in categories.items():
+        for _cat_name, cat_info in categories.items():
             assert "count" in cat_info
             assert "tools" in cat_info
             assert "description" in cat_info

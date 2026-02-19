@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import time
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -64,7 +64,7 @@ except ImportError:
     )
 
 
-class OperationalStatus(str, Enum):
+class OperationalStatus(StrEnum):
     """Task force operational status."""
 
     READY = "ready"
@@ -75,7 +75,7 @@ class OperationalStatus(str, Enum):
     UNAVAILABLE = "unavailable"
 
 
-class AlertLevel(str, Enum):
+class AlertLevel(StrEnum):
     """Safety and operational alert levels."""
 
     GREEN = "green"
@@ -84,7 +84,7 @@ class AlertLevel(str, Enum):
     CRITICAL = "critical"
 
 
-class MissionType(str, Enum):
+class MissionType(StrEnum):
     """Types of USAR missions."""
 
     SEARCH_AND_RESCUE = "search_and_rescue"

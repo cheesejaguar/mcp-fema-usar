@@ -1,13 +1,13 @@
 """Operations models for FEMA USAR missions and activities."""
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class MissionStatus(str, Enum):
+class MissionStatus(StrEnum):
     """Mission assignment status."""
 
     ASSIGNED = "assigned"
@@ -19,7 +19,7 @@ class MissionStatus(str, Enum):
     SUSPENDED = "suspended"
 
 
-class MissionPriority(str, Enum):
+class MissionPriority(StrEnum):
     """Mission priority levels."""
 
     LOW = "low"
@@ -29,7 +29,7 @@ class MissionPriority(str, Enum):
     EMERGENCY = "emergency"
 
 
-class SafetyIncidentType(str, Enum):
+class SafetyIncidentType(StrEnum):
     """Types of safety incidents."""
 
     INJURY = "injury"

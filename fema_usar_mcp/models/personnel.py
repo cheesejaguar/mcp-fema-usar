@@ -1,12 +1,12 @@
 """Personnel models for FEMA USAR operations."""
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class PersonnelStatus(str, Enum):
+class PersonnelStatus(StrEnum):
     """Personnel operational status."""
 
     OPERATIONAL = "operational"

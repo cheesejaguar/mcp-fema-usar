@@ -25,7 +25,7 @@ class TestHealthAndStatus:
 
         data = response.json()
         assert data["system"] == "Federal USAR MCP Server"
-        assert data["tools_available"] == 35
+        assert data["tools_available"] == 38
         assert data["task_forces_supported"] == 28
 
     @pytest.mark.unit
