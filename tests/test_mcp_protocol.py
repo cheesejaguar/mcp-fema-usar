@@ -5,10 +5,53 @@ in-memory testing capabilities.
 """
 
 import json
+import threading
 
 import pytest
 
-pytestmark = pytest.mark.asyncio
+from fema_usar_mcp.tool_registry import ToolRegistry
+
+# Tools whose default invocation currently fails inside the product code.
+# The medical helper stubs (fema_usar_mcp/tools/medical.py) were written with a
+# single ``data`` parameter but are called with 0-4 positional arguments, and
+# several callers index the stub return values with keys the stubs never set.
+BROKEN_MEDICAL_TOOLS = {
+    "medical_supply_inventory": (
+        "generate_inventory_alerts() takes 1 positional arg but is called with 2; "
+        "out_of_stock_items is an int but the caller calls len() on it"
+    ),
+    "triage_coordinator": (
+        "generate_priority_queue() takes 1 positional arg but is called with 2; "
+        "assess_triage_resource_needs() result lacks the 'personnel' key"
+    ),
+    "health_surveillance": (
+        "assess_environmental_health_risks() takes 1 positional arg but is called "
+        "with 2; its result lacks the 'risk_levels' key"
+    ),
+    "evacuation_coordinator": (
+        "assess_transport_feasibility() takes 1 positional arg but is called with 4; "
+        "generate_patient_preparation_requirements() returns a list, not a dict"
+    ),
+}
+
+# Tools that need arguments, or that intentionally return Markdown, not JSON.
+NON_DEFAULT_TOOLS = {
+    "get_async_task_info",
+    "submit_async_operation",
+    "usar_execute_tool",
+    "usar_get_tool_schema",
+}
+MARKDOWN_TOOLS = {
+    "calculate_task_force_readiness",
+    "get_usar_system_status",
+    "list_functional_groups",
+}
+
+
+def _all_registered_tool_names():
+    from fema_usar_mcp.tool_registry import initialize_registry
+
+    return sorted(tool["name"] for tool in initialize_registry().list_tools("all"))
 
 
 class TestToolDiscovery:
@@ -24,16 +67,14 @@ class TestToolDiscovery:
     async def test_latent_server_has_meta_tools_only(self, latent_mcp_server):
         """Verify latent server exposes only meta-tools."""
         tools = await latent_mcp_server.get_tools()
-        # Latent server should have only meta-tools (6)
-        assert len(tools) <= 10, (
-            f"Expected fewer tools for latent mode, found {len(tools)}"
-        )
-
-        # Should have the core meta-tools
-        tool_names = list(tools.keys())
-        assert "usar_browse_categories" in tool_names
-        assert "usar_list_tools" in tool_names
-        assert "usar_execute_tool" in tool_names
+        assert set(tools) == {
+            "usar_browse_categories",
+            "usar_list_tools",
+            "usar_get_tool_schema",
+            "usar_execute_tool",
+            "usar_health_check",
+            "usar_metrics",
+        }
 
     @pytest.mark.unit
     async def test_command_tools_registered(self, mcp_server):
@@ -168,10 +209,14 @@ class TestToolRegistry:
         assert func is not None
         assert callable(func)
 
+        from fema_usar_mcp.tools.command import task_force_leader_dashboard
+
+        assert func is task_force_leader_dashboard
+
         # Execute the loaded function
-        result = func(task_force_id="TEST-TF1")
-        assert result is not None
-        assert "task_force_id" in result or "TEST-TF1" in result
+        data = json.loads(func(task_force_id="TEST-TF1"))
+        assert data["status"] == "success"
+        assert data["data"]["task_force_id"] == "TEST-TF1"
 
     @pytest.mark.unit
     def test_registry_load_tool_schema(self, tool_registry):
@@ -191,18 +236,30 @@ class TestToolRegistry:
             "task_force_leader_dashboard", {"task_force_id": "TEST-TF1"}
         )
 
-        assert result is not None
         data = json.loads(result)
-        assert "status" in data or "dashboard" in data
+        assert data["status"] == "success"
+        assert data["data"]["task_force_id"] == "TEST-TF1"
+
+    @pytest.mark.unit
+    def test_registry_execute_tool_invalid_params(self, tool_registry):
+        """Unknown parameters produce a structured error, not an exception."""
+        result = tool_registry.execute_tool(
+            "task_force_leader_dashboard", {"no_such_param": 1}
+        )
+        data = json.loads(result)
+        assert data["error"] == (
+            "Invalid parameters for tool 'task_force_leader_dashboard'"
+        )
+        assert "no_such_param" in data["details"]
 
     @pytest.mark.unit
     def test_registry_execute_nonexistent_tool(self, tool_registry):
         """Test executing a nonexistent tool returns error."""
         result = tool_registry.execute_tool("nonexistent_tool")
 
-        assert result is not None
         data = json.loads(result)
-        assert "error" in data
+        assert data["error"] == "Tool 'nonexistent_tool' not found"
+        assert "task_force_leader_dashboard" in data["available_tools"]
 
     @pytest.mark.unit
     def test_registry_caching(self, tool_registry):
@@ -227,7 +284,7 @@ class TestMetaTools:
         categories = tool_registry.get_categories()
 
         assert len(categories) >= 8
-        for cat_name, cat_info in categories.items():
+        for cat_info in categories.values():
             assert "count" in cat_info
             assert "tools" in cat_info
             assert "description" in cat_info
@@ -272,7 +329,8 @@ class TestMetaTools:
         )
 
         data = json.loads(result)
-        assert "status" in data or "monitor" in data
+        assert data["status"] == "success"
+        assert data["data"]["monitoring_mode"] == "real_time"
 
     @pytest.mark.unit
     def test_usar_execute_medical_tool(self, tool_registry):
@@ -283,7 +341,11 @@ class TestMetaTools:
         )
 
         data = json.loads(result)
-        assert "status" in data or "tracker" in data
+        assert data["status"] == "success"
+        patient = data["data"]["patient_identification"]
+        assert patient["patient_id"] == "PAT-TEST"
+        assert patient["triage_tag"] == "immediate"
+        assert patient["care_level"] == "critical"
 
 
 class TestToolInvocation:
@@ -310,7 +372,7 @@ class TestToolInvocation:
         data = json.loads(result)
 
         assert data["status"] == "success"
-        assert "data" in data
+        assert data["data"]["monitoring_mode"] == "real_time"
 
     @pytest.mark.unit
     def test_victim_location_tracker(self):
@@ -321,7 +383,7 @@ class TestToolInvocation:
         data = json.loads(result)
 
         assert data["status"] == "success"
-        assert "data" in data
+        assert data["data"]["search_area_id"] == "TEST-AREA"
 
     @pytest.mark.unit
     def test_rescue_squad_operations(self):
@@ -345,7 +407,7 @@ class TestToolInvocation:
         data = json.loads(result)
 
         assert data["status"] == "success"
-        assert "data" in data
+        assert data["data"]["patient_identification"]["patient_id"] == "PAT-TEST"
 
 
 class TestSystemTools:
@@ -358,7 +420,8 @@ class TestSystemTools:
         data = json.loads(result)
 
         assert data["status"] == "success"
-        assert "performance_data" in data
+        assert "cache" in data["performance_data"]
+        assert "metrics" in data["performance_data"]
 
     @pytest.mark.unit
     def test_clear_system_cache(self, tool_registry):
@@ -367,7 +430,8 @@ class TestSystemTools:
         data = json.loads(result)
 
         assert data["status"] == "success"
-        assert "cleared_entries" in data
+        assert isinstance(data["cleared_entries"], int)
+        assert data["pattern"] == "all"
 
     @pytest.mark.unit
     def test_get_usar_system_status(self, tool_registry):
@@ -400,8 +464,6 @@ class TestLatentLoadingPerformance:
     @pytest.mark.unit
     def test_registry_starts_empty(self):
         """Test that registry starts with no loaded functions."""
-        from fema_usar_mcp.tool_registry import ToolRegistry
-
         registry = ToolRegistry()
         stats = registry.get_stats()
 
@@ -411,15 +473,21 @@ class TestLatentLoadingPerformance:
     @pytest.mark.unit
     def test_tools_load_on_demand(self, tool_registry):
         """Test that tools are loaded only when needed."""
-        initial_stats = tool_registry.get_stats()
-        initial_loaded = initial_stats["tools_loaded"]
+        from fema_usar_mcp.tool_metadata import get_all_tool_metadata
 
-        # Load a new tool
-        tool_registry.load_tool_function("task_force_leader_dashboard")
+        registry = ToolRegistry()
+        registry.register_all_metadata(get_all_tool_metadata())
+        assert registry.get_stats()["tools_loaded"] == 0
 
-        final_stats = tool_registry.get_stats()
-        # May already be loaded, so just verify it's not more than initial + 1
-        assert final_stats["tools_loaded"] <= initial_loaded + 1
+        registry.load_tool_function("task_force_leader_dashboard")
+        assert registry.get_stats()["tools_loaded"] == 1
+
+        # Loading the same tool again is served from the cache
+        registry.load_tool_function("task_force_leader_dashboard")
+        assert registry.get_stats()["tools_loaded"] == 1
+
+        registry.load_tool_function("safety_officer_monitor")
+        assert registry.get_stats()["tools_loaded"] == 2
 
     @pytest.mark.unit
     def test_schema_caching_improves_performance(self, tool_registry):
@@ -436,3 +504,52 @@ class TestLatentLoadingPerformance:
         stats_after_second = tool_registry.get_stats()
 
         assert stats_after_second["cache_hits"] > stats_after_first["cache_hits"]
+
+
+class TestEveryRegisteredTool:
+    """Every tool in the registry runs with its defaults and returns success."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "tool_name",
+        [
+            pytest.param(
+                name,
+                marks=pytest.mark.xfail(reason=BROKEN_MEDICAL_TOOLS[name], strict=True),
+            )
+            if name in BROKEN_MEDICAL_TOOLS
+            else name
+            for name in _all_registered_tool_names()
+            if name not in NON_DEFAULT_TOOLS
+        ],
+    )
+    def test_tool_runs_with_defaults(self, tool_registry, tool_name):
+        result = tool_registry.execute_tool(tool_name)
+        if tool_name in MARKDOWN_TOOLS:
+            assert result.lstrip().startswith("# ")
+            return
+        data = json.loads(result)
+        assert data["status"] in ("success", "healthy"), data
+
+
+class TestPerformanceMonitorLocking:
+    """Regression test for PerformanceMonitor.get_all_stats deadlocking."""
+
+    @pytest.mark.unit
+    def test_get_all_stats_with_recorded_metrics_does_not_deadlock(self):
+        from fema_usar_mcp.performance import PerformanceMonitor
+
+        monitor = PerformanceMonitor()
+        monitor.record_metric("tool_latency", 1.0)
+        monitor.record_metric("tool_latency", 3.0)
+
+        result = {}
+        worker = threading.Thread(
+            target=lambda: result.update(monitor.get_all_stats()), daemon=True
+        )
+        worker.start()
+        worker.join(timeout=5)
+
+        assert not worker.is_alive(), "get_all_stats() deadlocked"
+        assert result["metrics"]["tool_latency"]["count"] == 2
+        assert result["metrics"]["tool_latency"]["avg"] == 2.0

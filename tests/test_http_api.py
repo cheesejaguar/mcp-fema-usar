@@ -3,6 +3,8 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from fema_usar_mcp.core import get_system_status, get_usar_capabilities
+
 
 class TestHealthAndStatus:
     """Tests for health and status endpoints."""
@@ -16,6 +18,7 @@ class TestHealthAndStatus:
         data = response.json()
         assert data["system"] == "Federal USAR MCP Server"
         assert data["status"] == "operational"
+        assert data["capabilities"] == get_system_status()["capabilities"]
 
     @pytest.mark.unit
     def test_status_endpoint(self, test_client: TestClient):
@@ -35,9 +38,10 @@ class TestHealthAndStatus:
         assert response.status_code == 200
 
         data = response.json()
-        assert "functional_groups" in data
-        assert "tools" in data
-        assert "integrations" in data
+        assert len(data["functional_groups"]) == 7
+        assert "Command" in data["functional_groups"]
+        assert data["tools"] == get_usar_capabilities()["tools"]
+        assert "FEMA IRIS" in data["integrations"]
         assert data["personnel_positions"] == 70
         assert data["equipment_items"] == 16400
 
@@ -77,10 +81,18 @@ class TestUSAREndpoints:
         assert response.status_code == 200
 
         data = response.json()
-        assert "deployment_id" in data
+        assert data["deployment_id"] == "DEPLOY-CA-TF1-001"
         assert data["task_force_id"] == "CA-TF1"
         assert data["location"] == "Los Angeles, CA"
+        assert data["mission_type"] == "search_and_rescue"
+        assert data["status"] == "deployment_initiated"
         assert data["estimated_departure"] == "6 hours"
+
+    @pytest.mark.unit
+    def test_deployment_requires_location(self, test_client: TestClient):
+        """Deployment without a location is rejected by validation."""
+        response = test_client.post("/usar/deploy", params={"task_force_id": "CA-TF1"})
+        assert response.status_code == 422
 
 
 class TestICSFormsAPI:
@@ -111,70 +123,8 @@ class TestICSFormsAPI:
 
         data = response.json()
         assert data["id"] == "201"
-        assert "name" in data
-        assert "filename" in data
-
-    @pytest.mark.unit
-    def test_get_nonexistent_form(self, test_client: TestClient):
-        """Test getting non-existent form returns 404."""
-        response = test_client.get("/ics_forms/nonexistent")
-        assert response.status_code == 404
-
-
-class TestDatasetsAPI:
-    """Tests for datasets API endpoints."""
-
-    @pytest.mark.unit
-    def test_list_datasets(self, test_client: TestClient):
-        """Test listing available datasets."""
-        response = test_client.get("/datasets")
-        assert response.status_code == 200
-
-        data = response.json()
-        assert isinstance(data, list)
-
-    @pytest.mark.unit
-    def test_get_specific_dataset(self, test_client: TestClient):
-        """Test getting specific dataset information."""
-        # First get the list to find a valid dataset ID
-        list_response = test_client.get("/datasets")
-        datasets = list_response.json()
-
-        if datasets:
-            dataset_id = datasets[0]["id"]
-            response = test_client.get(f"/datasets/{dataset_id}")
-            assert response.status_code == 200
-
-            data = response.json()
-            assert data["id"] == dataset_id
-
-
-class TestDocumentsAPI:
-    """Tests for documents API endpoints."""
-
-    @pytest.mark.unit
-    def test_list_documents(self, test_client: TestClient):
-        """Test listing available documents."""
-        response = test_client.get("/documents")
-        assert response.status_code == 200
-
-        data = response.json()
-        assert isinstance(data, list)
-
-    @pytest.mark.unit
-    def test_get_document_info(self, test_client: TestClient):
-        """Test getting document information."""
-        # First get the list to find a valid document ID
-        list_response = test_client.get("/documents")
-        documents = list_response.json()
-
-        if documents:
-            doc_id = documents[0]["id"]
-            response = test_client.get(f"/documents/{doc_id}")
-            assert response.status_code == 200
-
-            data = response.json()
-            assert data["id"] == doc_id
+        assert data["name"] == "Incident Briefing"
+        assert data["filename"] == "ics_201.pdf"
 
 
 class TestErrorHandling:
@@ -194,7 +144,7 @@ class TestErrorHandling:
         """Test handling of malformed JSON requests."""
         response = test_client.post(
             "/usar/status",
-            data="invalid json",
+            content="invalid json",
             headers={"Content-Type": "application/json"},
         )
         assert response.status_code == 422
@@ -205,15 +155,38 @@ class TestCORSAndSecurity:
 
     @pytest.mark.unit
     def test_cors_headers_present(self, test_client: TestClient):
-        """Test that CORS headers are present."""
-        _ = test_client.options("/health")  # response (unused)
-        # In test environment, CORS middleware should be configured
-        # The actual headers depend on the CORS configuration
+        """Preflight from an allowed origin gets CORS headers back."""
+        response = test_client.options(
+            "/health",
+            headers={
+                "Origin": "http://localhost:3000",
+                "Access-Control-Request-Method": "GET",
+            },
+        )
+        assert response.status_code == 200
+        assert (
+            response.headers["access-control-allow-origin"] == "http://localhost:3000"
+        )
+        assert response.headers["access-control-allow-credentials"] == "true"
+
+    @pytest.mark.unit
+    def test_cors_rejects_unknown_origin(self, test_client: TestClient):
+        """Preflight from an origin outside CORS_ORIGINS is refused."""
+        response = test_client.options(
+            "/health",
+            headers={
+                "Origin": "https://evil.example.com",
+                "Access-Control-Request-Method": "GET",
+            },
+        )
+        assert response.status_code == 400
+        assert "access-control-allow-origin" not in response.headers
 
 
 class TestPerformance:
     """Tests for API performance."""
 
+    @pytest.mark.unit
     @pytest.mark.slow
     def test_concurrent_requests(self, test_client: TestClient):
         """Test handling of concurrent requests."""

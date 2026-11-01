@@ -13,9 +13,6 @@ from fema_usar_mcp.core import (
     USARTaskForceConfig,
 )
 
-# Mark all tests in this module as async-compatible
-pytestmark = pytest.mark.asyncio
-
 
 @pytest.fixture
 def mcp_server():
@@ -88,20 +85,3 @@ def sample_equipment_item():
         last_inspection=datetime(2024, 8, 1, 12, 0, 0),
         next_maintenance=datetime(2024, 12, 1, 12, 0, 0),
     )
-
-
-@pytest.fixture
-def mock_advanced_library(monkeypatch):
-    """Mock advanced library dependencies for testing."""
-    import sys
-    from unittest.mock import MagicMock
-
-    # Mock numpy if not available
-    if "numpy" not in sys.modules:
-        sys.modules["numpy"] = MagicMock()
-
-    # Mock pandas if not available
-    if "pandas" not in sys.modules:
-        sys.modules["pandas"] = MagicMock()
-
-    return True
