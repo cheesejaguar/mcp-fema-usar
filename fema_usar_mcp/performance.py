@@ -282,7 +282,7 @@ class PerformanceMonitor:
     def __init__(self):
         self.metrics: dict[str, list[float]] = {}
         self.counters: dict[str, int] = {}
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def record_metric(self, name: str, value: float) -> None:
         """Record a performance metric."""

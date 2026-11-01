@@ -3,6 +3,7 @@
 import json
 
 import pytest
+from fastmcp import Client
 
 from fema_usar_mcp.core import get_system_status
 from fema_usar_mcp.fastmcp_server import mcp
@@ -23,41 +24,28 @@ class TestFastMCPServerInitialization:
         assert mcp.name == "fema-usar-mcp"
 
     @pytest.mark.unit
-    def test_tools_registered(self):
-        """Test that all required tools are registered."""
-        # The tools are registered as functions, so we can verify they exist
-        assert callable(task_force_leader_dashboard)
-        assert callable(safety_officer_monitor)
-        assert callable(personnel_accountability)
+    async def test_tools_registered(self):
+        """Test that the command tools are registered with the MCP server."""
+        tools = await mcp.get_tools()
+        for func in (
+            task_force_leader_dashboard,
+            safety_officer_monitor,
+            personnel_accountability,
+        ):
+            assert func.__name__ in tools
+            assert tools[func.__name__].fn is func
 
     @pytest.mark.unit
-    def test_system_status_tool_exists(self):
-        """Test that system status tool is properly registered."""
-        # This tool is defined directly in the server - check various possible attributes
+    async def test_system_status_tool_exists(self):
+        """System status tool is registered and callable over the MCP protocol."""
+        async with Client(mcp) as client:
+            tool_names = {tool.name for tool in await client.list_tools()}
+            assert "get_usar_system_status" in tool_names
 
-        # Check different possible attributes for tools in FastMCP
-        for attr in ["_tools", "tools", "_registry", "registry"]:
-            if hasattr(mcp, attr):
-                tools_attr = getattr(mcp, attr)
-                if isinstance(tools_attr, dict):
-                    _ = [
-                        tool.name
-                        for tool in tools_attr.values()
-                        if hasattr(tool, "name")
-                    ]  # noqa: F841
-                    _ = True  # tools_found  # noqa: F841
-                    break
-                elif hasattr(tools_attr, "__iter__"):
-                    try:
-                        _ = [tool.name for tool in tools_attr if hasattr(tool, "name")]  # noqa: F841
-                        _ = True  # tools_found  # noqa: F841
-                        break
-                    except (AttributeError, TypeError):
-                        continue
-
-        # If we can't find tools registry, at least verify the instance exists
-        assert mcp is not None
-        assert hasattr(mcp, "tool")  # Should have tool registration method
+            result = await client.call_tool("get_usar_system_status")
+            text = result.content[0].text
+            assert "Federal USAR MCP System Status" in text
+            assert "Federal USAR MCP Server" in text
 
 
 class TestCommandTools:
@@ -139,10 +127,11 @@ class TestCoreBusinessLogic:
 
         readiness = calculate_deployment_readiness(sample_task_force_config)
 
-        assert "overall_readiness_percent" in readiness
-        assert "deployment_capable" in readiness
         assert readiness["deployment_capable"] is True
-        assert readiness["overall_readiness_percent"] > 90
+        assert readiness["personnel_readiness_percent"] == 100.0
+        assert readiness["equipment_readiness_percent"] == 100.0
+        assert readiness["training_readiness_percent"] == 95.0
+        assert readiness["overall_readiness_percent"] == 98.3
 
     @pytest.mark.unit
     def test_safety_alert_processing(self):
@@ -162,7 +151,8 @@ class TestCoreBusinessLogic:
         assert result["alert_id"] == "TEST-ALERT-001"
         assert result["immediate_response_required"] is True
         assert result["personnel_count_affected"] == 2
-        assert "recommendations" in result
+        assert result["notification_level"] == "urgent"
+        assert "Evacuate affected area immediately" in result["recommendations"]
 
 
 class TestToolIntegration:
@@ -180,7 +170,10 @@ class TestToolIntegration:
 
         # Should still return valid JSON even with empty task_force_id
         result_data = json.loads(result)
-        assert "status" in result_data
+        assert result_data["status"] == "success"
+        assert result_data["data"]["task_force_id"] == ""
+        assert "personnel_status" in result_data["data"]
+        assert "equipment_status" in result_data["data"]
 
     @pytest.mark.integration
     def test_multiple_tools_coordination(self):
@@ -205,6 +198,7 @@ class TestToolIntegration:
 class TestPerformanceAndScalability:
     """Tests for performance and scalability."""
 
+    @pytest.mark.unit
     @pytest.mark.slow
     def test_large_dataset_handling(self):
         """Test handling of large datasets."""
@@ -219,6 +213,12 @@ class TestPerformanceAndScalability:
         # Should complete in reasonable time and return valid data
         result_data = json.loads(result)
         assert result_data["status"] == "success"
+        data = result_data["data"]
+        assert data["summary"]["total_personnel"] == 70
+        assert data["summary"]["equipment_total"] == 16400
+        assert isinstance(data["mission_assignments"], list)
+        assert "personnel_status" in data
+        assert "equipment_status" in data
 
     @pytest.mark.unit
     def test_concurrent_tool_calls(self):
@@ -234,7 +234,8 @@ class TestPerformanceAndScalability:
 
             results = [future.result() for future in futures]
 
-        # All calls should succeed
-        for result in results:
+        # All calls should succeed and each result belongs to its own request
+        for i, result in enumerate(results, start=1):
             result_data = json.loads(result)
             assert result_data["status"] == "success"
+            assert result_data["data"]["task_force_id"] == f"TF-{i}"

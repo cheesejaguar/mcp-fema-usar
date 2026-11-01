@@ -2,7 +2,6 @@
 
 import json
 from concurrent.futures import ThreadPoolExecutor
-from unittest.mock import patch
 
 import pytest
 
@@ -54,11 +53,10 @@ class TestToolIntegration:
         # Verify data consistency
         assert tfl_data["status"] == "success"
         assert search_data["status"] == "success"
-        # Check that personnel status exists in the data
+        assert tfl_data["data"]["task_force_id"] == "TEST-TF1"
         assert "personnel_status" in tfl_data["data"]
-        assert (
-            "data" in search_data
-        )  # search_data has 'data' key, not 'search_operations'
+        assert search_data["data"]["search_area_id"] == "AREA-A1"
+        assert search_data["data"]["victim_status_filter"] == "confirmed"
 
     @pytest.mark.integration
     def test_search_to_rescue_handoff(self):
@@ -163,12 +161,12 @@ class TestToolIntegration:
         # Verify safety integration
         assert structural_data["status"] == "success"
         assert safety_data["status"] == "success"
-        assert (
-            structural_data["assessment_data"]["safety_evaluation"][
-                "occupancy_recommendation"
-            ]
-            is not None
-        )
+        occupancy = structural_data["assessment_data"]["safety_evaluation"][
+            "occupancy_recommendation"
+        ]
+        # A moderately damaged commercial structure is not safe to occupy
+        assert occupancy["safe_for_occupancy"] is False
+        assert occupancy["maximum_occupant_load"] == 0
 
 
 class TestSystemIntegration:
@@ -301,35 +299,39 @@ class TestSystemIntegration:
         )
         resource_data = json.loads(resource_result)
 
-        # Verify data structure exists - simplified consistency check
-        assert "data" in tfl_data
-        assert "data" in personnel_data
-        assert "resource_data" in resource_data or "data" in resource_data
+        # Every source must agree on the task force's personnel total
+        tfl_total = tfl_data["data"]["summary"]["total_personnel"]
+        accountability_total = personnel_data["data"]["total_personnel"]
+        resource_total = resource_data["resource_data"]["personnel_tracking"][
+            "total_personnel"
+        ]
+        assert tfl_total == accountability_total == resource_total == 70
 
 
 class TestErrorHandlingAndResilience:
     """Test error handling and system resilience."""
 
     @pytest.mark.integration
-    def test_graceful_error_handling(self):
-        """Test graceful handling of errors across tool integrations."""
-        # Test with invalid parameters
-        result = task_force_leader_dashboard("", include_personnel=True)
-        data = json.loads(result)
-
-        # Should still return valid JSON structure even with empty task_force_id
-        assert "status" in data
-        assert "dashboard" in data or "tool" in data
-
-    @pytest.mark.integration
     def test_system_recovery_after_failure(self):
         """Test system recovery capabilities after component failure."""
-        # Simulate a failure scenario and recovery
-        with patch("fema_usar_mcp.tools.command.logger.error"):
-            # This should not cause system failure
-            result = task_force_leader_dashboard("TEST-TF1")
-            data = json.loads(result)
-            assert data["status"] == "success"
+        from fema_usar_mcp.tool_registry import initialize_registry
+
+        registry = initialize_registry()
+
+        # A failing invocation (bad parameters) returns a structured error...
+        failed = json.loads(
+            registry.execute_tool("task_force_leader_dashboard", {"bogus": True})
+        )
+        assert failed["error"].startswith("Invalid parameters")
+
+        # ...and the same tool keeps working afterwards
+        recovered = json.loads(
+            registry.execute_tool(
+                "task_force_leader_dashboard", {"task_force_id": "TEST-TF1"}
+            )
+        )
+        assert recovered["status"] == "success"
+        assert recovered["data"]["task_force_id"] == "TEST-TF1"
 
     @pytest.mark.integration
     def test_resource_exhaustion_handling(self):
@@ -382,21 +384,26 @@ class TestPerformanceIntegration:
     def test_memory_usage_stability(self):
         """Test memory usage stability during extended operations."""
         import gc
+        import tracemalloc
 
-        # Force garbage collection
+        # Warm up so one-time imports/caches are not counted
+        for _ in range(5):
+            task_force_leader_dashboard("TEST-TF1")
+
         gc.collect()
+        tracemalloc.start()
+        try:
+            baseline, _ = tracemalloc.get_traced_memory()
+            for _ in range(200):
+                data = json.loads(task_force_leader_dashboard("TEST-TF1"))
+                assert data["status"] == "success"
+            gc.collect()
+            current, _ = tracemalloc.get_traced_memory()
+        finally:
+            tracemalloc.stop()
 
-        # Execute repeated operations
-        for _ in range(20):
-            result = task_force_leader_dashboard("TEST-TF1")
-            data = json.loads(result)
-            assert data["status"] == "success"
-
-        # Force garbage collection again
-        gc.collect()
-
-        # Memory should be stable (no significant leaks)
-        # This is a basic test - in production, you'd use memory profiling tools
+        # 200 calls should not retain more than 1 MB
+        assert current - baseline < 1_000_000
 
 
 class TestSystemStatusIntegration:
@@ -452,18 +459,13 @@ class TestSystemStatusIntegration:
             (structural_assessment, ("preliminary", "commercial")),
         ]
 
-        availability_results = []
+        unavailable = []
         for tool_func, args in tool_tests:
-            try:
-                result = tool_func(*args)
-                data = json.loads(result)
-                availability_results.append(data["status"] == "success")
-            except Exception:
-                availability_results.append(False)
+            data = json.loads(tool_func(*args))
+            if data["status"] != "success":
+                unavailable.append(tool_func.__name__)
 
-        # Calculate system availability
-        availability_rate = sum(availability_results) / len(availability_results) * 100
-        assert availability_rate >= 95.0  # 95% availability target
+        assert unavailable == []
 
 
 class TestDataFlowIntegration:
@@ -479,9 +481,7 @@ class TestDataFlowIntegration:
         planning_data = json.loads(planning_result)
 
         # Verify incident ID propagation
-        assert planning_data["incident_id"] == incident_id or "incident_id" in str(
-            planning_result
-        )
+        assert planning_data["incident_id"] == incident_id
         assert planning_data["status"] == "success"
 
     @pytest.mark.integration
@@ -497,7 +497,13 @@ class TestDataFlowIntegration:
 
         # Both systems should be operational
         assert resource_data["status"] == "success"
+        assert resource_data["task_force_id"] == "TEST-TF1"
+        assert set(resource_data["resource_data"]) >= {
+            "personnel_tracking",
+            "equipment_tracking",
+        }
         assert logistics_data["status"] == "success"
+        assert logistics_data["supply_category"] == "all"
 
     @pytest.mark.integration
     def test_safety_information_sharing(self):
@@ -508,7 +514,10 @@ class TestDataFlowIntegration:
 
         # Verify safety information is available
         assert safety_data["status"] == "success"
-        assert "safety_monitoring" in safety_data["data"] or "monitor" in safety_data
+        assert safety_data["monitor"] == "Safety Officer Monitor"
+        assert safety_data["data"]["monitoring_mode"] == "real_time"
+        assert safety_data["data"]["personnel_tracked"] == 70
+        assert "overall_safety_status" in safety_data["data"]
 
 
 @pytest.mark.integration
